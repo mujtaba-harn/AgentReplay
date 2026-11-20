@@ -13,7 +13,7 @@ Goal: an empty project that is easy to build on and hard to break.
 | F0.1 | Monorepo: pnpm workspaces, `core`, `cli`, `web` packages, shared `tsconfig.base.json` (strict) | S | `pnpm build` builds all three |
 | F0.2 | Biome lint + format, `pnpm check` script | S | `pnpm check` passes; CI fails on lint errors |
 | F0.3 | Vitest set up in `core` with one passing test | S | `pnpm test` runs green |
-| F0.4 | GitHub Actions: mac/linux/windows × Node 20/22 running check + test + build | S | Badge green on all 6 jobs |
+| F0.4 | GitHub Actions: mac/linux/windows × Node 22/24 running check + test + build | S | Badge green on all 6 jobs |
 | F0.5 | `CLAUDE.md` committed; `docs/` holds PRD, ARCHITECTURE, FEATURES | S | Files present |
 | F0.6 | Collect 10+ real Claude Code logs, scrub secrets, save as fixtures | M | `core/test/fixtures/` has short, long, error-heavy and multi-edit sessions |
 

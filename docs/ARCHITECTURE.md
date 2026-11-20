@@ -91,7 +91,7 @@ The published npm package is **`agentreplay`** = `cli` bundled with `core` and t
 | Concern | Choice | Why |
 |---|---|---|
 | Language | TypeScript (strict) | One language for CLI, UI, future extension and server |
-| Runtime | Node.js ≥ 20 | Required by npx; has `fetch`, `parseArgs`, streams built in |
+| Runtime | Node.js ≥ 22 (20 is end-of-life) | Required by npx; has `fetch`, `parseArgs`, streams built in |
 | Package manager | pnpm workspaces | Fast, strict, first-class monorepo support |
 | CLI args | `node:util` `parseArgs` | Built-in, zero deps |
 | Interactive picker | `@clack/prompts` | Small, good-looking, accessible |
@@ -105,7 +105,7 @@ The published npm package is **`agentreplay`** = `cli` bundled with `core` and t
 | Bundling CLI | `tsup` | One command, outputs a single ESM file |
 | Tests | `vitest` | Fast, same config style as Vite |
 | Lint/format | `biome` | Replaces ESLint + Prettier with one fast tool |
-| CI | GitHub Actions matrix (mac, linux, windows × Node 20, 22) | Catches path bugs early |
+| CI | GitHub Actions matrix (mac, linux, windows × Node 22, 24) | Catches path bugs early |
 
 Deliberately **not** used in Phase 1: Next.js, Express, Redux, Tailwind plugins beyond defaults, any database, any analytics SDK.
 

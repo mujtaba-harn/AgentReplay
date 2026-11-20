@@ -91,7 +91,7 @@ As a developer, I trust that my code stays local.
 
 ## 7. Constraints
 
-- Node.js ≥ 20. TypeScript everywhere.
+- Node.js ≥ 22 (Node 20 reached end-of-life in April 2026). TypeScript everywhere.
 - Claude Code's log format is **undocumented and may change** without notice — biggest product risk. Mitigation: adapter isolation + fixture tests + tolerant parsing (unknown events are skipped, never crash).
 - Package size of the published CLI: < 5 MB unpacked.
 
