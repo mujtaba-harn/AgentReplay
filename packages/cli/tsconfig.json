@@ -1,9 +1,10 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "rootDir": "src",
-    "outDir": "dist",
-    "types": ["node"]
+    "types": ["node"],
+    // Type-check against core's source so `pnpm check` works before core is built.
+    "customConditions": ["@agentreplay/source"],
+    "noEmit": true
   },
   "include": ["src"]
 }
