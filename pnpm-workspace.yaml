@@ -1,0 +1,6 @@
+packages:
+  - "packages/*"
+
+# Install scripts are blocked by default; only these trusted packages may run them.
+onlyBuiltDependencies:
+  - esbuild
