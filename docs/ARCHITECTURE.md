@@ -1,0 +1,243 @@
+# AgentReplay — Architecture
+
+> Audience: the coding agent and any engineer reviewing the plan. Covers Phase 1 in detail and shows where later phases plug in.
+
+## 1. Principles
+
+1. **Local-first.** All parsing and rendering happen on the user's machine. The network is only for share features (Phase 2+), and only on explicit user action.
+2. **One core, many doors.** A single pure-TypeScript `core` package does all the thinking. CLI, Web UI, VS Code extension and desktop app are thin shells around it.
+3. **Adapters isolate the outside world.** Nothing outside `core/adapters/*` knows which agent produced a log.
+4. **Pure functions in core.** `core` never touches the network or the console. File reading happens only in adapters' I/O entry points. Everything else is `input → output`, which makes it trivially testable.
+5. **Tolerant parsing.** Unknown or malformed lines are counted and skipped, never thrown. A partial replay beats a crash.
+6. **Few dependencies.** Each dependency is a liability (size, security, breakage). Prefer Node built-ins.
+
+## 2. System overview
+
+```
+                         User's computer
+┌──────────────────────────────────────────────────────────────────┐
+│                                                                  │
+│  Terminal: npx agentreplay                                       │
+│        │                                                         │
+│        ▼                                                         │
+│  ┌────────────┐   uses   ┌─────────────────────────────────────┐ │
+│  │  cli       │────────▶│  core                               │ │
+│  │  (Node)    │          │  adapters → normalize → redact      │ │
+│  │  picker    │          │            → stats → (ReplaySession)│ │
+│  │  http srv  │          └─────────────────────────────────────┘ │
+│  └─────┬──────┘                       ▲                          │
+│        │ serves JSON + static files   │ reads                    │
+│        ▼                              │                          │
+│  ┌────────────┐               ~/.claude/projects/**/*.jsonl      │
+│  │  web       │                                                  │
+│  │  (React)   │  Browser at http://127.0.0.1:<port>              │
+│  └────────────┘                                                  │
+└──────────────────────────────────────────────────────────────────┘
+        Phase 2+: web ──(user clicks Share)──▶ agentreplay.dev API
+```
+
+## 3. Repository layout (monorepo)
+
+```
+agentreplay/
+├─ packages/
+│  ├─ core/                 # pure TS, no UI, no console output
+│  │  ├─ src/
+│  │  │  ├─ types.ts        # ReplayEvent, ReplaySession, SessionSummary
+│  │  │  ├─ adapters/
+│  │  │  │  ├─ index.ts     # adapter registry
+│  │  │  │  └─ claude-code/
+│  │  │  │     ├─ locate.ts # where logs live per OS
+│  │  │  │     ├─ parse.ts  # raw line → ReplayEvent[]
+│  │  │  │     └─ schema.ts # zod schemas for known line shapes
+│  │  │  ├─ redact.ts       # secret detection + masking
+│  │  │  ├─ group.ts        # merge consecutive reads, compress idle gaps
+│  │  │  ├─ stats.ts        # summary numbers
+│  │  │  ├─ pricing.ts      # model → $ per token (config table)
+│  │  │  └─ index.ts        # public API (small!)
+│  │  └─ test/
+│  │     ├─ fixtures/       # real, scrubbed .jsonl files
+│  │     └─ *.test.ts
+│  ├─ cli/                  # Node entry point
+│  │  └─ src/
+│  │     ├─ index.ts        # arg parsing, flow
+│  │     ├─ picker.ts       # session selection prompt
+│  │     ├─ server.ts       # tiny http server (node:http)
+│  │     └─ card.ts         # --card headless export
+│  └─ web/                  # Vite + React UI, built to static files
+│     └─ src/
+│        ├─ App.tsx
+│        ├─ api.ts          # fetch('/api/...')
+│        ├─ state.ts        # playback state (one reducer)
+│        ├─ components/
+│        │  ├─ EventTrack.tsx
+│        │  ├─ StepList.tsx
+│        │  ├─ StepDetail.tsx
+│        │  ├─ Controls.tsx
+│        │  ├─ StatsPanel.tsx
+│        │  └─ RecapCard.tsx
+│        └─ styles.css
+├─ CLAUDE.md                # rules for the coding agent
+├─ package.json             # workspaces, shared scripts
+├─ pnpm-workspace.yaml
+├─ biome.json               # lint + format (one tool)
+└─ tsconfig.base.json
+```
+
+The published npm package is **`agentreplay`** = `cli` bundled with `core` and the built `web` assets. `core` can later be published separately as `@agentreplay/core` for the VS Code extension and contributors.
+
+## 4. Tech stack and why
+
+| Concern | Choice | Why |
+|---|---|---|
+| Language | TypeScript (strict) | One language for CLI, UI, future extension and server |
+| Runtime | Node.js ≥ 20 | Required by npx; has `fetch`, `parseArgs`, streams built in |
+| Package manager | pnpm workspaces | Fast, strict, first-class monorepo support |
+| CLI args | `node:util` `parseArgs` | Built-in, zero deps |
+| Interactive picker | `@clack/prompts` | Small, good-looking, accessible |
+| Open browser | `open` | Cross-platform, tiny |
+| HTTP server | `node:http` | ~40 lines; Express is unnecessary |
+| Validation | `zod` | Validates each log line against known shapes; unknown → skip |
+| Diffs | `diff` | Standard, small |
+| UI | React 19 + Vite | Mature, fast builds, coding agents know it well |
+| Long lists | `react-virtuoso` | Smooth with 2,000+ events |
+| PNG export | `html-to-image` | Client-side, no server |
+| Bundling CLI | `tsup` | One command, outputs a single ESM file |
+| Tests | `vitest` | Fast, same config style as Vite |
+| Lint/format | `biome` | Replaces ESLint + Prettier with one fast tool |
+| CI | GitHub Actions matrix (mac, linux, windows × Node 20, 22) | Catches path bugs early |
+
+Deliberately **not** used in Phase 1: Next.js, Express, Redux, Tailwind plugins beyond defaults, any database, any analytics SDK.
+
+## 5. Core data model
+
+```ts
+// packages/core/src/types.ts
+export type EventKind = "user" | "assistant" | "read" | "edit" | "write" | "command" | "search" | "error";
+
+export interface ReplayEvent {
+  id: string;
+  kind: EventKind;
+  t: number;                 // ms since session start
+  title: string;             // "Edited src/globals.css"
+  file?: string;             // relative to session cwd
+  diff?: { before: string; after: string; added: number; removed: number };
+  text?: string;             // prompt, reply, command, or output (already redacted)
+  tokens?: { in: number; out: number; cacheRead: number; cacheWrite: number };
+  model?: string;
+  groupSize?: number;        // set by group.ts when merging reads
+}
+
+export interface SessionSummary {          // cheap: for the picker list
+  id: string; agent: "claude-code"; path: string;
+  title: string; project: string; startedAt: Date; durationMs: number;
+}
+
+export interface ReplaySession extends SessionSummary {
+  events: ReplayEvent[];
+  stats: SessionStats;
+  warnings: { skippedLines: number; redactions: number };
+}
+```
+
+Everything downstream (UI, card, future share API) consumes **only** these types.
+
+## 6. Adapter contract
+
+```ts
+export interface Adapter {
+  id: "claude-code";                               // later: "codex" | "cursor"
+  locate(): Promise<string[]>;                     // absolute paths to session files
+  summarize(path: string): Promise<SessionSummary>;// reads only what it needs
+  parse(path: string): Promise<ReplaySession>;     // full parse, streaming
+}
+```
+
+### Claude Code adapter notes
+- Location: `~/.claude/projects/<encoded-project-path>/<session-id>.jsonl` (resolve home via `os.homedir()`; never hardcode `/Users`). Respect `CLAUDE_CONFIG_DIR` if set.
+- Format: one JSON object per line. Relevant shapes (verify against real fixtures; undocumented):
+  - `type: "user"` — `message.content` is a string (prompt) or an array containing `tool_result` blocks.
+  - `type: "assistant"` — `message.content` array with `text` and `tool_use` blocks; `message.usage` holds token counts; `message.model` holds the model id.
+  - Each line has `timestamp`, `uuid`, `parentUuid`, `cwd`, `sessionId`.
+- Tool mapping: `Read → read`, `Edit / MultiEdit → edit`, `Write → write`, `Bash → command`, `Grep / Glob → search`. A `tool_result` with `is_error: true` → `error`. Anything else → skipped and counted.
+- Pair `tool_use` with its `tool_result` by `tool_use_id` to attach command output and errors.
+- Parse with `readline` over a stream — never `readFileSync` + `split` on large files.
+- `summarize()` reads the first user prompt and the file's last line only.
+
+## 7. Secret redaction
+
+Runs inside `core` **before** any event leaves `parse()`. The UI never receives raw text.
+
+1. **Known patterns** (one table in `redact.ts`): AWS `AKIA…`, GitHub `ghp_/gho_/github_pat_…`, Stripe `sk_live_/rk_live_…`, OpenAI `sk-…`, Anthropic `sk-ant-…`, Slack `xox[abpr]-…`, Google `AIza…`, private key blocks, JWTs, `postgres://user:pass@`, generic `KEY|SECRET|TOKEN|PASSWORD = value`.
+2. **Sensitive files**: content read from `.env*`, `*.pem`, `id_rsa*`, `credentials*` is replaced entirely with `[hidden: sensitive file]`.
+3. **High-entropy strings**: tokens ≥ 32 chars with Shannon entropy > 4.0 → masked.
+4. Mask format keeps a hint: `sk_live_••••••••3f9a`.
+5. Count redactions; surface "We hid N possible secrets" in the UI.
+6. Fixture `test/fixtures/secrets.jsonl` contains every pattern; tests assert none survive.
+
+## 8. CLI flow
+
+```
+npx agentreplay [--latest] [--card] [--port N] [--no-open] [--path FILE]
+  1. adapters.locate()          → list of files
+  2. summarize() each (in parallel, limit 8) → sort by startedAt desc
+  3. picker (unless --latest / --path)
+  4. parse(selected)            → ReplaySession
+  5a. --card → render card headlessly → save PNG → exit
+  5b. else  → start server on 127.0.0.1:<port|random free> → open browser
+```
+
+Server routes (all GET, JSON unless noted):
+- `/api/sessions` → `SessionSummary[]`
+- `/api/sessions/:id` → `ReplaySession` (parsed lazily, cached in memory)
+- `/*` → static files from bundled `web/dist`
+
+Security: bind `127.0.0.1` only; reject requests whose `Host` header isn't `127.0.0.1:<port>` or `localhost:<port>` (prevents DNS-rebinding); `:id` must match a located session — never accept arbitrary file paths from the browser.
+
+`--card` headless export (Phase 1 simple path): open the UI with `?card=1&download=1` and let the page export. Pure-Node rendering (Satori + resvg) moves to Phase 2 with the share server, which needs it anyway.
+
+## 9. Web UI architecture
+
+- **One state reducer** (`state.ts`): `{ session, index, playing, speed, filter, cardOpen }`. Components read state and dispatch actions; no prop-drilling chains, no global store library.
+- **Playback**: a single `useEffect` timer advances `index`; delay = `min(realGap / speed, 1500ms)` so idle gaps compress.
+- **Derived data with `useMemo`**: filtered events, track marker positions. Never stored in state.
+- **Virtualized step list** from the start; it costs nothing and avoids a rewrite.
+- **Card** is a normal component rendered at 1080×1920 in an off-screen node, exported via `html-to-image`.
+- Styling: plain CSS with custom properties for themes (light/dark + card themes). No CSS framework needed at this size.
+
+## 10. Testing strategy
+
+| Layer | What | How |
+|---|---|---|
+| core/adapters | Real logs parse to expected events | Fixture files + snapshot of event kinds/counts |
+| core/redact | No secret survives | Secrets fixture; property test with random-wrapped keys |
+| core/stats | Numbers are right | Small hand-written fixtures with known totals |
+| cli | Finds sessions per OS, server routes | CI matrix; temp-dir fixtures via `CLAUDE_CONFIG_DIR` |
+| web | Key interactions | Vitest + Testing Library for reducer and 3–4 components; manual check list for visuals |
+
+Rule: every bug found in a real log becomes a new fixture before it is fixed.
+
+## 11. Performance budgets
+
+| Item | Budget |
+|---|---|
+| Parse 10 MB log | < 1.5 s |
+| Picker list for 200 sessions | < 1 s (summaries only) |
+| Web bundle (gzipped) | < 250 KB |
+| Published package unpacked | < 5 MB |
+| UI interaction latency | < 50 ms per step change |
+
+## 12. Where later phases plug in
+
+| Phase | Addition | Touches |
+|---|---|---|
+| 2 | Codex / Cursor adapters | `core/adapters/*` only |
+| 2 | Share links | New `packages/server` (Hono on Vercel/Cloudflare) + Postgres; `web` gets a Share button; upload is the already-redacted `ReplaySession` |
+| 2 | OG images | Satori + resvg in `server`, reusing `RecapCard` layout |
+| 3 | VS Code extension | New `packages/vscode`; imports `core`, embeds `web` in a webview |
+| 3 | Accounts + payments | `server` + auth provider + Stripe; CLI `login` command |
+| 3 | Video export | Remotion composition reusing replay components |
+| 4 | Desktop app | `packages/desktop` with Tauri wrapping `web` |
+| 4 | No-Node users | `bun build --compile` standalone binaries |
+
+If a later phase needs to change `core/types.ts`, that is a deliberate, versioned decision — not a side effect.

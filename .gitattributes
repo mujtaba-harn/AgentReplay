@@ -1,0 +1,5 @@
+# Store and check out text files with LF everywhere so Windows CI and Biome agree.
+* text=auto eol=lf
+
+*.png binary
+*.ico binary
