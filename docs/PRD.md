@@ -64,7 +64,7 @@ As a developer, I click a step and see what happened.
 **US-4 · Stats**
 As a developer, I see a summary for the session.
 - Duration (first→last event), files changed (unique paths), lines added/removed, tool calls, tokens (input/output/cache), estimated cost in USD.
-- Cost is labelled "estimate" and uses a pricing table in config, per model.
+- Cost uses Claude Code's own total from the log when present (labelled "exact"); otherwise it is computed from a pricing table in config, per model, and labelled "estimate".
 
 **US-5 · Recap card**
 As a creator, I export a recap card.

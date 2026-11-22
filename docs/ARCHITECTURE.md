@@ -130,11 +130,21 @@ export interface ReplayEvent {
 
 export interface SessionSummary {          // cheap: for the picker list
   id: string; agent: "claude-code"; path: string;
-  title: string; project: string; startedAt: Date; durationMs: number;
+  title: string; project: string;
+  startedAt: number;         // epoch ms — a number, not a Date, so it survives JSON to the browser
+  durationMs: number;
+}
+
+export interface SessionStats {            // PRD US-4
+  durationMs: number; filesChanged: number; linesAdded: number; linesRemoved: number;
+  toolCalls: number;
+  tokens: { in: number; out: number; cacheRead: number; cacheWrite: number };
+  costUsd: number;
+  costSource: "exact" | "estimate";        // exact = log's cost-state; estimate = pricing.ts
 }
 
 export interface ReplaySession extends SessionSummary {
-  events: ReplayEvent[];
+  events: readonly ReplayEvent[];
   stats: SessionStats;
   warnings: { skippedLines: number; redactions: number };
 }

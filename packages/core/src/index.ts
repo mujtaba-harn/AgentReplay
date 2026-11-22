@@ -1,3 +1,12 @@
-// Placeholder public API so the packages can be wired together in Phase 0.
-// Replaced by the real API from F1.1 onwards.
+export type {
+  AgentId,
+  EventKind,
+  ReplayEvent,
+  ReplaySession,
+  SessionStats,
+  SessionSummary,
+  TokenUsage,
+} from "./types.js";
+
+// Placeholder used by the CLI until F1.8 replaces it with the package version.
 export const AGENTREPLAY_VERSION = "0.0.0";
