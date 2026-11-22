@@ -6,6 +6,7 @@ import type { ReplayEvent, TokenUsage } from "../../types.js";
 import { diffOf } from "./diff.js";
 import {
   type AssistantLine,
+  agentResultSchema,
   assistantLineSchema,
   type ContentBlock,
   type UserLine,
@@ -29,6 +30,8 @@ export interface EventsRead {
   origin: number | undefined;
   /** Counted once per API reply, keyed by model id. */
   tokensByModel: Record<string, TokenUsage>;
+  /** Subagent event id → the subagent's agentId, which names its own log file. */
+  subagentIds: Record<string, string>;
 }
 
 interface ReadState extends EventsRead {
@@ -148,6 +151,10 @@ function readToolResult(state: ReadState, line: UserLine, block: ContentBlock): 
     const diff = diffOf(line.toolUseResult);
     if (diff !== undefined) call.diff = diff;
   }
+  if (call.kind === "subagent") {
+    const agent = agentResultSchema.safeParse(line.toolUseResult);
+    if (agent.success) state.subagentIds[call.id] = agent.data.agentId;
+  }
 }
 
 function readUser(state: ReadState, line: UserLine, lineNumber: number): void {
@@ -195,6 +202,7 @@ export async function readEvents(path: string): Promise<EventsRead> {
     skippedLines: 0,
     origin: undefined,
     tokensByModel: {},
+    subagentIds: {},
     countedReplies: new Set(),
     attachedReplies: new Set(),
     pendingTools: new Map(),

@@ -65,6 +65,9 @@ export type UserLine = z.infer<typeof userLineSchema>;
 export type AssistantLine = z.infer<typeof assistantLineSchema>;
 export type ContentBlock = z.infer<typeof contentBlockSchema>;
 
+/** `toolUseResult` of an Agent call; its log is `<session-id>/subagents/agent-<agentId>.jsonl`. */
+export const agentResultSchema = z.object({ agentId: z.string() });
+
 /** `toolUseResult` of a successful Edit or Write. Write uses type "create" for a new file. */
 export const editResultSchema = z.object({
   type: z.string().optional(),

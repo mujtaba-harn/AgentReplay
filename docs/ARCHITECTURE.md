@@ -166,7 +166,7 @@ export interface Adapter {
 
 ### Claude Code adapter notes
 - Location: `~/.claude/projects/<encoded-project-path>/<session-id>.jsonl` (resolve home via `os.homedir()`; never hardcode `/Users`). Respect `CLAUDE_CONFIG_DIR` if set.
-- **Subagents write their own file** in a `subagents` folder inside the session folder. `locate()` returns main sessions only (they are not listed separately in the picker); `subagentFiles(sessionPath)` finds a session's subagent logs in `<session-id>/subagents/`, which links each one to its parent. Each has a sibling `.meta.json`, ignored for now.
+- **Subagents write their own file** in a `subagents` folder inside the session folder. `locate()` returns main sessions only (they are not listed separately in the picker); `subagentFiles(sessionPath)` finds a session's subagent logs in `<session-id>/subagents/`, which links each one to its parent. Each has a sibling `.meta.json`, ignored for now. The Agent call's `toolUseResult.agentId` names the file (`agent-<agentId>.jsonl`). **Phase 1 display (decided):** a subagent is one timeline step whose output starts with an activity summary ("Read 11 files · ran 4 commands") followed by its final report; its own steps are not shown but count in stats (tokens, cost, files changed).
 - **Folder names are unreliable for project names.** On Windows the same project can appear as `C--Users-…` and `c--Users-…` (drive-letter case). Take the project name from the `cwd` recorded in the log.
 - **Resumed sessions (`-c`) append to the same file**, so one file can hold several prompts. Treat the whole file as one session.
 - Format: one JSON object per line. Shapes below are verified against the fixtures (Claude Code 2.1.330, Windows) but remain undocumented and may change:
