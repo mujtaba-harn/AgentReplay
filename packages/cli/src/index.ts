@@ -3,9 +3,11 @@ import type { SessionSummary } from "@agentreplay/core";
 import { cancel } from "@clack/prompts";
 import packageJson from "../package.json" with { type: "json" };
 import { type CliOptions, HELP_TEXT, parseCliArgs } from "./args.js";
+import { openBrowser } from "./browser.js";
 import { pickSession } from "./picker.js";
 import { type RunningServer, startServer } from "./server.js";
 import { findSessions, sessionAt } from "./sessions.js";
+import { replayUrl, runningSummary } from "./summary.js";
 
 // The built UI next to this package in the repo; F1.12 bundles it into the published package.
 const WEB_ROOT = fileURLToPath(new URL("../../web/dist", import.meta.url));
@@ -62,28 +64,29 @@ async function main(argv: readonly string[]): Promise<void> {
   }
   const session = await chooseSession(options);
   if (!session) return;
-  await serve(session, options.port);
+  await serve(session, options);
 }
 
 function isPortTaken(error: unknown): boolean {
   return error instanceof Error && "code" in error && error.code === "EADDRINUSE";
 }
 
-/** Runs the replay server until Ctrl+C. Opening the browser arrives in F1.11. */
-async function serve(session: SessionSummary, port: number | undefined): Promise<void> {
+/** Runs the replay server, opens the browser unless --no-open, and waits for Ctrl+C. */
+async function serve(session: SessionSummary, options: CliOptions): Promise<void> {
   let server: RunningServer;
   try {
-    server = await startServer({ sessions: [session], webRoot: WEB_ROOT, port });
+    server = await startServer({ sessions: [session], webRoot: WEB_ROOT, port: options.port });
   } catch (error) {
     if (!isPortTaken(error)) throw error;
     fail(
-      `Port ${port} is already in use.`,
+      `Port ${options.port} is already in use.`,
       "Pick another with --port N, or leave it out to use any free port.",
     );
     return;
   }
-  console.log(`Replay of "${session.title}" running at ${server.url}`);
-  console.log("Press Ctrl+C to stop.");
+  const url = replayUrl(server.url, session.id);
+  const browser = options.open ? await openBrowser(url) : "skipped";
+  console.log(runningSummary(session, url, browser).join("\n"));
   process.once("SIGINT", () => {
     void server.close().then(() => console.log("Stopped."));
   });

@@ -214,6 +214,8 @@ Server routes (all GET, JSON unless noted):
 - `/api/sessions/:id` → `ReplaySession` (parsed lazily, cached in memory)
 - `/*` → static files from bundled `web/dist`
 
+The CLI opens `/?session=<id>`; the web UI reads `session` from the query string to know which replay to load.
+
 Security: bind `127.0.0.1` only; reject requests whose `Host` header isn't `127.0.0.1:<port>` or `localhost:<port>` (prevents DNS-rebinding); `:id` must match a located session — never accept arbitrary file paths from the browser.
 
 `--card` headless export (Phase 1 simple path): open the UI with `?card=1&download=1` and let the page export. Pure-Node rendering (Satori + resvg) moves to Phase 2 with the share server, which needs it anyway.
