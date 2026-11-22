@@ -16,16 +16,17 @@ Real sessions recorded on Windows with Claude Code 2.1.330 on 22 Nov 2026. Use t
 | File | Lines | Prompts | Minutes | What it covers |
 |---|---|---|---|---|
 | `01-todo-app-short.jsonl` | 74 | 1 | 0.8 | Normal short build: Read, Glob, Write, Bash |
-| `02-notes-cli-multi-turn.jsonl` | 214 | 3 | 3.5 | Three rounds continued with `-c`; Write, Edit, PowerShell, Bash; 5 tool errors |
-| `03-bugfix-failing-tests.jsonl` | 130 | 1 | 0.7 | Failing tests, 12 edits to fix 5 planted bugs |
-| `04-explain-read-only.jsonl` | 67 | 1 | 0.4 | 12 reads, no edits |
-| `05-expense-tracker-long.jsonl` | 1,236 | 5 | 29.6 | Biggest file (3.7 MB): 160 edits, 120 task-list updates, 16 tool errors, one subagent |
-| `05-expense-tracker-subagent.jsonl` | 74 | 1 | 3.7 | The subagent's own log: separate file, 22 reads |
+| `02-notes-cli-multi-turn.jsonl` | 214 | 3 | 3.5 | Three rounds continued with `-c`; Write, Edit, PowerShell, Bash; 4 tool errors |
+| `03-bugfix-failing-tests.jsonl` | 130 | 1 | 0.7 | Failing tests, 6 edits to fix 5 planted bugs |
+| `04-explain-read-only.jsonl` | 67 | 1 | 0.4 | 6 reads, no edits |
+| `05-expense-tracker-long.jsonl` | 1,236 | 5 | 29.6 | Biggest file (2.6 MB here, 3.7 MB full): 80 edits, 63 task-list events, 12 tool errors, one subagent |
+| `05-expense-tracker-subagent.jsonl` | 74 | 1 | 3.7 | The subagent's own log: separate file, 11 reads |
 | `06-tiny-question.jsonl` | 34 | 1 | 0.1 | One answer, no tools |
 | `07-interrupted-max-turns.jsonl` | 85 | 1 | 0.4 | Stopped after 4 turns, work unfinished |
 | `08-secrets-fake.jsonl` | 78 | 1 | 0.7 | Fake Stripe, OpenAI, GitHub, AWS keys and a database password |
 | `09-model-switch.jsonl` | 117 | 2 | 0.7 | Sonnet 5.5 then Haiku 5.5 in one session |
 | `10-habit-tracker-resumed.jsonl` | 333 | 3 | 6.4 | Resumed twice; all in the same file |
+| `11-vscode-pasted-prompt.jsonl` | 4 | 1 | 0.2 | Hand-written, not recorded: VS Code prompt shape (editor context + pasted text) |
 
 ## Findings that change the plan (for ARCHITECTURE.md §6)
 
