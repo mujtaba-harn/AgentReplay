@@ -31,7 +31,7 @@ Real sessions recorded on Windows with Claude Code 2.1.330 on 22 Nov 2026. Use t
 ## Findings that change the plan (for ARCHITECTURE.md §6)
 
 1. **Most lines are not conversation.** Besides `user` and `assistant`, logs contain `session-owner`, `queue-operation`, `attachment`, `data-flow-records`, `atis-latch`, `last-prompt`, `api-request-shape`, `api-request-blob`, `api-request`, `tools-used`, `mode` and `cost-state`. The parser must skip unknown types quietly.
-2. **`cost-state` gives exact totals:** `totalCostUSD`, `totalLinesAdded`, `totalLinesRemoved`, `totalDuration` and per-model token usage. Prefer it over our own estimate when present.
+2. **`cost-state` gives exact totals:** `totalCostUSD`, `totalLinesAdded`, `totalLinesRemoved`, `totalDuration` and per-model token usage. Prefer it over our own estimate when present — except `totalDuration`, which is per Claude Code process and wrong for continued sessions; duration comes from timestamps instead.
 3. **Tool names differ from the docs:** Windows uses `PowerShell` as well as `Bash`; the task list is `TaskCreate` / `TaskUpdate` (not `TodoWrite`); subagents are `Agent` (not `Task`); also `Skill` and `ToolSearch`. Map `PowerShell` → command, `TaskCreate`/`TaskUpdate` → task-list event, `Agent` → subagent event.
 4. **Subagents write their own file** in a `subagents` folder inside the session folder. `locate()` must find these and link them to the parent session.
 5. **Resumed sessions (`-c`) append to the same file**, so one file can hold several prompts.

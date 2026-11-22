@@ -183,7 +183,7 @@ export interface Adapter {
 - Pair `tool_use` with its `tool_result` by `tool_use_id` to attach command output and errors. Each `user` line holds at most one `tool_result`, and its top-level `toolUseResult` is that call's structured result.
 - **Diffs come ready-made.** Edit/Write `toolUseResult.structuredPatch` holds unified-diff hunks; count `+`/`-` lines. A new file is `type: "create"` with no patch; count it as `content.split("\n").length` lines. That is Claude Code's own rule, so totals match `cost-state.totalLinesAdded/Removed` exactly.
 - Parse with `readline` over a stream — never `readFileSync` + `split` on large files.
-- `summarize()` reads the first user prompt and the file's last line only. In a finished session the last line is a `cost-state` (no `timestamp`): use its `startTime` and `totalDuration`. If it is anything else (e.g. a crashed session), fall back to the last line that has a `timestamp`.
+- `summarize()` reads the first user prompt and the file's last line only. In a finished session the last line is a `cost-state` (no `timestamp`): use its `startTime` as the start. Duration is always first → last timestamped line (US-4). **Don't use `totalDuration` for it:** it counts per Claude Code process, not per log — a continued session inherits the earlier run's total (seen: 29 min for 5 min of messages), and a session with long breaks reported 64 min for two days of messages. `totalDuration` is only the fallback when no line has a timestamp.
 
 ## 7. Secret redaction
 

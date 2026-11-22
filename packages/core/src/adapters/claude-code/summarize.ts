@@ -78,10 +78,13 @@ async function readTail(path: string): Promise<Tail> {
   }
 }
 
+// US-4 defines duration as first → last event. Claude Code's own totalDuration is per process, not
+// per log: a continued session inherits the earlier run's total, so it is only a last resort.
 function durationOf(head: Head, tail: Tail): number {
-  if (tail.cost) return tail.cost.totalDuration;
-  if (head.firstTimestamp === undefined || tail.lastTimestamp === undefined) return 0;
-  return Math.max(0, tail.lastTimestamp - head.firstTimestamp);
+  if (head.firstTimestamp !== undefined && tail.lastTimestamp !== undefined) {
+    return Math.max(0, tail.lastTimestamp - head.firstTimestamp);
+  }
+  return tail.cost?.totalDuration ?? 0;
 }
 
 export interface SummaryFacts {
