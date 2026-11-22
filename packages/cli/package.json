@@ -11,7 +11,8 @@
   },
   "scripts": {
     "build": "tsup",
-    "typecheck": "tsc -p tsconfig.json"
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run"
   },
   "dependencies": {
     "@agentreplay/core": "workspace:*"
@@ -19,6 +20,7 @@
   "devDependencies": {
     "@types/node": "^22.20.5",
     "tsup": "^9.0.0",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "vitest": "^5.1.1"
   }
 }

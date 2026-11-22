@@ -6,5 +6,5 @@
     "customConditions": ["@agentreplay/source"],
     "noEmit": true
   },
-  "include": ["src"]
+  "include": ["src", "test"]
 }

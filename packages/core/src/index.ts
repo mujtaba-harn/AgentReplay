@@ -12,6 +12,3 @@ export type {
   SessionSummary,
   TokenUsage,
 } from "./types.js";
-
-// Placeholder used by the CLI until F1.8 replaces it with the package version.
-export const AGENTREPLAY_VERSION = "0.0.0";
