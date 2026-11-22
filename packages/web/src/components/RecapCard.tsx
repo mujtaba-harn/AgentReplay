@@ -1,9 +1,16 @@
 // PRD US-5: the 1080×1920 recap card. Shows counts and step kinds only — never code or file
-// contents, and no file names.
+// contents, and file names only when the user turns them on.
 import type { ReplaySession } from "@agentreplay/core";
 import { formatDuration } from "@agentreplay/core/format";
 import { useMemo } from "react";
-import { type BarKind, cardStats, stripBars } from "../card";
+import {
+  type BarKind,
+  type CardStatId,
+  cardStats,
+  DEFAULT_CARD_STATS,
+  stripBars,
+  topFileNames,
+} from "../card";
 
 export type CardTheme = "terminal" | "violet" | "clay";
 
@@ -26,15 +33,35 @@ const KICKER: Readonly<Record<CardTheme, string>> = {
   clay: "",
 };
 
-interface RecapCardProps {
-  session: ReplaySession;
+/** What the user chose for their card (F1.21). */
+export interface CardOptions {
   theme: CardTheme;
+  /** Empty means "use the session's own title". */
+  title: string;
+  stats: readonly CardStatId[];
+  /** PRD US-5: file names are hidden unless the user turns them on. */
+  showFiles: boolean;
 }
 
-export function RecapCard({ session, theme }: RecapCardProps) {
+export const defaultCardOptions = (): CardOptions => ({
+  theme: "terminal",
+  title: "",
+  stats: DEFAULT_CARD_STATS,
+  showFiles: false,
+});
+
+interface RecapCardProps {
+  session: ReplaySession;
+  options: CardOptions;
+}
+
+export function RecapCard({ session, options }: RecapCardProps) {
+  const { theme } = options;
   const bars = useMemo(() => stripBars(session.events), [session.events]);
-  const stats = cardStats(session);
+  const files = useMemo(() => topFileNames(session.events), [session.events]);
+  const stats = cardStats(session, options.stats);
   const steps = session.events.length;
+  const title = options.title.trim() || session.title;
   return (
     <div className={`recap-card card-${theme}`}>
       <div className="card-top">
@@ -43,7 +70,7 @@ export function RecapCard({ session, theme }: RecapCardProps) {
       </div>
       <div className="card-heading">
         <span className="card-kicker">{KICKER[theme]}</span>
-        <h1 className="card-title">{session.title}</h1>
+        <h1 className="card-title">{title}</h1>
       </div>
       <div className="card-strip-block">
         <div className="card-strip">
@@ -63,6 +90,11 @@ export function RecapCard({ session, theme }: RecapCardProps) {
           </span>
         </div>
       </div>
+      {options.showFiles && files.length > 0 && (
+        <p className="card-files">
+          <span className="card-files-label">Most edited</span> {files.join(" · ")}
+        </p>
+      )}
       <dl className="card-stats">
         {stats.map((stat) => (
           <div key={stat.label} className="card-stat">

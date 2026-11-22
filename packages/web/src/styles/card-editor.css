@@ -1,0 +1,87 @@
+/* Card view and its settings panel (F1.21): settings beside the card, stacked on narrow screens. */
+.card-view {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.card-back {
+  align-self: flex-start;
+}
+
+.card-layout {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+.card-editor {
+  display: flex;
+  flex: 1 1 260px;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 360px;
+}
+
+.editor-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.editor-field span,
+.editor-group legend {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.editor-field input {
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+}
+
+.editor-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.editor-group legend {
+  margin-bottom: 6px;
+  padding: 0;
+}
+
+.editor-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.editor-check input {
+  accent-color: var(--accent);
+}
+
+.editor-check:has(input:disabled) {
+  color: var(--muted);
+  cursor: default;
+}
+
+.card-themes {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.card-themes legend {
+  width: 100%;
+}

@@ -1,6 +1,8 @@
-// Data for the recap card (PRD US-5). Only counts and step kinds: never code or file contents.
+// Data for the recap card (PRD US-5). Only counts, step kinds and (if asked) file names:
+// never code or file contents.
 import type { EventKind, ReplayEvent, ReplaySession } from "@agentreplay/core";
-import { formatCost } from "./format";
+import { formatDuration } from "@agentreplay/core/format";
+import { formatCost, formatCount } from "./format";
 
 export type BarKind = "edit" | "command" | "error" | "other";
 
@@ -13,6 +15,9 @@ export interface CardStat {
 
 /** More bars than this would be thinner than a pixel on a 1080 px card. */
 export const MAX_STRIP_BARS = 300;
+/** The card has room for a 2×2 grid. */
+export const MAX_CARD_STATS = 4;
+const TOP_FILES = 3;
 
 const BAR_OF_KIND: Readonly<Partial<Record<EventKind, BarKind>>> = {
   edit: "edit",
@@ -48,17 +53,84 @@ export function stripBars(events: readonly ReplayEvent[]): { position: number; k
 }
 
 const thousands = (n: number): string => n.toLocaleString("en-US");
+const countKind = (session: ReplaySession, kind: EventKind): number =>
+  session.events.filter((e) => e.kind === kind).length;
 
-/** The four stats the card shows by default (F1.21 lets the user choose others). */
-export function cardStats({ stats }: ReplaySession): CardStat[] {
-  return [
-    { label: "Files changed", value: thousands(stats.filesChanged) },
-    {
+/** Every stat the card can show, in the order it shows them. */
+export const CARD_STATS = [
+  {
+    id: "duration",
+    stat: (s: ReplaySession): CardStat => ({
+      label: "Duration",
+      value: formatDuration(s.stats.durationMs),
+    }),
+  },
+  {
+    id: "files",
+    stat: (s: ReplaySession): CardStat => ({
+      label: "Files changed",
+      value: thousands(s.stats.filesChanged),
+    }),
+  },
+  {
+    id: "lines",
+    stat: (s: ReplaySession): CardStat => ({
       label: "Lines",
-      value: `+${thousands(stats.linesAdded)}`,
-      extra: `−${thousands(stats.linesRemoved)}`,
+      value: `+${thousands(s.stats.linesAdded)}`,
+      extra: `−${thousands(s.stats.linesRemoved)}`,
+    }),
+  },
+  {
+    id: "toolCalls",
+    stat: (s: ReplaySession): CardStat => ({
+      label: "Tool calls",
+      value: thousands(s.stats.toolCalls),
+    }),
+  },
+  {
+    id: "tokens",
+    stat: (s: ReplaySession): CardStat => {
+      const t = s.stats.tokens;
+      return { label: "Tokens", value: formatCount(t.in + t.out + t.cacheRead + t.cacheWrite) };
     },
-    { label: "Tool calls", value: thousands(stats.toolCalls) },
-    { label: "Cost", value: formatCost(stats.costUsd) },
-  ];
+  },
+  {
+    id: "steps",
+    stat: (s: ReplaySession): CardStat => ({ label: "Steps", value: thousands(s.events.length) }),
+  },
+  {
+    id: "errors",
+    stat: (s: ReplaySession): CardStat => ({
+      label: "Errors",
+      value: thousands(countKind(s, "error")),
+    }),
+  },
+  {
+    id: "cost",
+    stat: (s: ReplaySession): CardStat => ({ label: "Cost", value: formatCost(s.stats.costUsd) }),
+  },
+] as const;
+
+export type CardStatId = (typeof CARD_STATS)[number]["id"];
+
+export const DEFAULT_CARD_STATS: readonly CardStatId[] = ["files", "lines", "toolCalls", "cost"];
+
+/** The chosen stats, in the card's fixed order, at most four. */
+export function cardStats(session: ReplaySession, chosen: readonly CardStatId[]): CardStat[] {
+  return CARD_STATS.filter(({ id }) => chosen.includes(id))
+    .slice(0, MAX_CARD_STATS)
+    .map(({ stat }) => stat(session));
+}
+
+/** The most-edited files' names, without folders (PRD US-5: shown only if the user opts in). */
+export function topFileNames(events: readonly ReplayEvent[]): string[] {
+  const editsPerPath = new Map<string, number>();
+  for (const { kind, file } of events) {
+    if (file === undefined || BAR_OF_KIND[kind] !== "edit") continue;
+    editsPerPath.set(file, (editsPerPath.get(file) ?? 0) + 1);
+  }
+  return [...editsPerPath.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, TOP_FILES)
+    .map(([path]) => path.split(/[\\/]/).at(-1) ?? path);
 }

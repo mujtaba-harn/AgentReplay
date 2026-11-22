@@ -3,8 +3,8 @@ import type { ReplaySession } from "@agentreplay/core";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { VirtuosoMockContext } from "react-virtuoso";
-import { afterEach, describe, expect, it } from "vitest";
-import { RecapCard } from "../src/components/RecapCard";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { defaultCardOptions, RecapCard } from "../src/components/RecapCard";
 import { Replay } from "../src/components/Replay";
 
 const CODE = "const apiKey = process.env.SECRET_TOKEN;";
@@ -43,7 +43,9 @@ afterEach(cleanup);
 
 describe("RecapCard", () => {
   it("shows the title, agent, duration, step count and the four stats", () => {
-    const { container } = render(<RecapCard session={session} theme="violet" />);
+    const { container } = render(
+      <RecapCard session={session} options={{ ...defaultCardOptions(), theme: "violet" }} />,
+    );
     const text = container.textContent ?? "";
 
     for (const expected of ["Built an expense tracker", "Claude Code", "29m", "4 steps"]) {
@@ -55,7 +57,9 @@ describe("RecapCard", () => {
   });
 
   it("draws one strip bar per step, coloured by kind", () => {
-    const { container } = render(<RecapCard session={session} theme="terminal" />);
+    const { container } = render(
+      <RecapCard session={session} options={{ ...defaultCardOptions(), theme: "terminal" }} />,
+    );
     const bars = [...container.querySelectorAll(".card-strip .card-bar")];
 
     expect(bars.map((b) => b.className.replace("card-bar bar-", ""))).toEqual([
@@ -67,7 +71,9 @@ describe("RecapCard", () => {
   });
 
   it("never shows code, file names or command output", () => {
-    const { container } = render(<RecapCard session={session} theme="clay" />);
+    const { container } = render(
+      <RecapCard session={session} options={{ ...defaultCardOptions(), theme: "clay" }} />,
+    );
     const text = container.textContent ?? "";
 
     expect(text).not.toContain("apiKey");
@@ -77,11 +83,60 @@ describe("RecapCard", () => {
 
   it("is 1080×1920 in every theme", () => {
     for (const theme of ["terminal", "violet", "clay"] as const) {
-      const { container, unmount } = render(<RecapCard session={session} theme={theme} />);
+      const { container, unmount } = render(
+        <RecapCard session={session} options={{ ...defaultCardOptions(), theme }} />,
+      );
 
       expect(container.firstElementChild?.className).toBe(`recap-card card-${theme}`);
       unmount();
     }
+  });
+});
+
+describe("editing the card", () => {
+  const withSizes = ({ children }: { children: ReactNode }) => (
+    <VirtuosoMockContext.Provider value={{ viewportHeight: 300, itemHeight: 30 }}>
+      {children}
+    </VirtuosoMockContext.Provider>
+  );
+  const card = () => document.querySelector(".recap-card")?.textContent ?? "";
+
+  beforeEach(() => {
+    render(<Replay session={session} />, { wrapper: withSizes });
+    fireEvent.click(screen.getByRole("button", { name: "Recap card" }));
+  });
+
+  it("uses the typed title, and the session's own title when cleared", () => {
+    const title = screen.getByRole("textbox", { name: "Title" });
+
+    fireEvent.change(title, { target: { value: "Shipped expenses v1" } });
+    expect(card()).toContain("Shipped expenses v1");
+
+    fireEvent.change(title, { target: { value: "" } });
+    expect(card()).toContain("Built an expense tracker");
+  });
+
+  it("lets you pick at most four stats", () => {
+    expect(screen.getByRole("checkbox", { name: "Duration" })).toHaveProperty("disabled", true);
+
+    fireEvent.click(screen.getByRole("checkbox", { name: "Cost" }));
+    fireEvent.click(screen.getByRole("checkbox", { name: "Duration" }));
+
+    expect(card()).not.toContain("$8.97");
+    expect(card()).toContain("Duration");
+    expect(screen.getByText("Stats (4 of 4)")).toBeTruthy();
+  });
+
+  it("hides file names until they are turned on, and never shows folders", () => {
+    const toggle = screen.getByRole("checkbox", { name: "Show file names" });
+    expect(toggle).toHaveProperty("checked", false);
+    expect(card()).not.toContain("billing.ts");
+
+    fireEvent.click(toggle);
+
+    expect(card()).toContain("billing.ts");
+    expect(card()).not.toContain("secret-plans");
+    expect(card()).not.toContain("apiKey");
   });
 });
 
