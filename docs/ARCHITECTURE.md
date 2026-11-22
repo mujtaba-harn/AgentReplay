@@ -122,7 +122,8 @@ export interface ReplayEvent {
   title: string;             // "Edited src/globals.css"
   file?: string;             // relative to session cwd
   diff?: { before: string; after: string; added: number; removed: number };
-  text?: string;             // prompt, reply, command, or output (already redacted)
+  text?: string;             // prompt, reply, command, or error message (already redacted)
+  output?: string;           // what a command, search or subagent returned (already redacted)
   tokens?: { in: number; out: number; cacheRead: number; cacheWrite: number };
   model?: string;
   groupSize?: number;        // set by group.ts when merging reads

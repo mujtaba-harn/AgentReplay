@@ -37,11 +37,21 @@ export function promptText(content: UserLine["message"]["content"]): string {
   return text.trim();
 }
 
-/** One line, at most 60 characters, cut at a word boundary with "…". */
+/** One line, at most 60 characters, ending in "…" when cut. */
 export function toTitle(text: string): string {
   const line = text.replace(/\s+/g, " ").trim();
   if (line.length <= TITLE_MAX) return line;
-  let cut = line.slice(0, TITLE_MAX - 1);
-  if (line[TITLE_MAX - 1] !== " " && cut.includes(" ")) cut = cut.slice(0, cut.lastIndexOf(" "));
-  return `${cut.trimEnd()}…`;
+  const cut = line.slice(0, TITLE_MAX - 1);
+  const lastSpace = cut.lastIndexOf(" ");
+  // Cut at a word boundary only when that keeps most of the text (long paths have no spaces).
+  const atWord = line[TITLE_MAX - 1] !== " " && lastSpace > cut.length * 0.66;
+  return `${(atWord ? cut.slice(0, lastSpace) : cut).trimEnd()}…`;
+}
+
+const SHORT_PATH_MAX = 40;
+
+/** A path short enough for a title: long ones keep only their last two parts. */
+export function shortPath(path: string): string {
+  if (path.length <= SHORT_PATH_MAX) return path;
+  return `…/${path.split("/").slice(-2).join("/")}`;
 }

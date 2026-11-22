@@ -2,7 +2,21 @@
 // Unknown keys are ignored, so new fields Claude Code adds won't break parsing.
 import { z } from "zod";
 
-const contentBlockSchema = z.object({ type: z.string(), text: z.string().optional() });
+const textPartSchema = z.object({ type: z.string(), text: z.string().optional() });
+
+// One loose shape covers text, thinking, tool_use and tool_result blocks; fields depend on `type`.
+const contentBlockSchema = z.object({
+  type: z.string(),
+  text: z.string().optional(),
+  // tool_use
+  id: z.string().optional(),
+  name: z.string().optional(),
+  input: z.record(z.string(), z.unknown()).optional(),
+  // tool_result
+  tool_use_id: z.string().optional(),
+  content: z.union([z.string(), z.array(textPartSchema)]).optional(),
+  is_error: z.boolean().optional(),
+});
 
 export const userLineSchema = z.object({
   type: z.literal("user"),
@@ -29,6 +43,7 @@ export const assistantLineSchema = z.object({
   timestamp: z.iso.datetime(),
   uuid: z.string(),
   requestId: z.string().optional(),
+  cwd: z.string().optional(),
   message: z.object({
     model: z.string().optional(),
     content: z.array(contentBlockSchema),
@@ -46,3 +61,4 @@ export const timestampedLineSchema = z.object({ timestamp: z.iso.datetime() });
 
 export type UserLine = z.infer<typeof userLineSchema>;
 export type AssistantLine = z.infer<typeof assistantLineSchema>;
+export type ContentBlock = z.infer<typeof contentBlockSchema>;

@@ -1,4 +1,4 @@
-// Internal: turns a Claude Code log into prompt and reply events. Not exported from core,
+// Internal: turns a Claude Code log into timeline events. Not exported from core,
 // because text here is not redacted yet — parse() will wrap this once redact() exists (F1.5).
 import { createReadStream } from "node:fs";
 import { createInterface } from "node:readline";
@@ -6,10 +6,19 @@ import type { ReplayEvent, TokenUsage } from "../../types.js";
 import {
   type AssistantLine,
   assistantLineSchema,
+  type ContentBlock,
   type UserLine,
   userLineSchema,
 } from "./schema.js";
 import { parseJson, promptText, timestampOf, toTitle } from "./text.js";
+import {
+  KINDS_WITH_OUTPUT,
+  relativeFile,
+  resultText,
+  TOOL_TO_KIND,
+  toolText,
+  toolTitle,
+} from "./tools.js";
 
 export interface EventsRead {
   events: ReplayEvent[];
@@ -22,13 +31,20 @@ export interface EventsRead {
 }
 
 interface ReadState extends EventsRead {
-  /** Replies whose tokens were already counted; their later lines must not count again. */
+  /** Replies already added to tokensByModel; their later lines must not count again. */
   countedReplies: Set<string>;
+  /** Replies whose tokens already sit on an event; only a reply's first event carries them. */
+  attachedReplies: Set<string>;
+  /** Tool calls waiting for their result, by tool_use id. */
+  pendingTools: Map<string, ReplayEvent>;
 }
 
 const UNKNOWN_MODEL = "unknown";
+const ZERO_TOKENS: TokenUsage = { in: 0, out: 0, cacheRead: 0, cacheWrite: 0 };
 
-function tokensOf(usage: NonNullable<AssistantLine["message"]["usage"]>): TokenUsage {
+function tokensOf(line: AssistantLine): TokenUsage | undefined {
+  const usage = line.message.usage;
+  if (usage === undefined) return undefined;
   return {
     in: usage.input_tokens,
     out: usage.output_tokens,
@@ -37,8 +53,14 @@ function tokensOf(usage: NonNullable<AssistantLine["message"]["usage"]>): TokenU
   };
 }
 
-function addTokens(state: ReadState, model: string, tokens: TokenUsage): void {
-  const total = state.tokensByModel[model] ?? { in: 0, out: 0, cacheRead: 0, cacheWrite: 0 };
+const replyId = (line: AssistantLine): string => line.requestId ?? line.uuid;
+
+function countReplyTokens(state: ReadState, line: AssistantLine): void {
+  const tokens = tokensOf(line);
+  if (tokens === undefined || state.countedReplies.has(replyId(line))) return;
+  state.countedReplies.add(replyId(line));
+  const model = line.message.model ?? UNKNOWN_MODEL;
+  const total = state.tokensByModel[model] ?? ZERO_TOKENS;
   state.tokensByModel[model] = {
     in: total.in + tokens.in,
     out: total.out + tokens.out,
@@ -47,42 +69,42 @@ function addTokens(state: ReadState, model: string, tokens: TokenUsage): void {
   };
 }
 
+/** Adds model and (for the reply's first event only) tokens, then records the event. */
+function pushReplyEvent(state: ReadState, line: AssistantLine, event: ReplayEvent): void {
+  if (line.message.model !== undefined) event.model = line.message.model;
+  const tokens = tokensOf(line);
+  if (tokens !== undefined && !state.attachedReplies.has(replyId(line))) {
+    state.attachedReplies.add(replyId(line));
+    event.tokens = tokens;
+  }
+  state.events.push(event);
+}
+
 function elapsed(state: ReadState, timestamp: string): number {
   return Date.parse(timestamp) - (state.origin ?? Date.parse(timestamp));
 }
 
-function readUser(state: ReadState, line: UserLine, lineNumber: number): void {
-  if (line.isMeta) return;
-  const text = promptText(line.message.content);
-  if (text === "") return; // only tool results; handled with tool calls (F1.4b)
-  state.events.push({
-    id: line.uuid ?? `line-${lineNumber}`,
-    kind: "user",
+function readToolCall(state: ReadState, line: AssistantLine, block: ContentBlock): void {
+  const kind = block.name === undefined ? undefined : TOOL_TO_KIND[block.name];
+  if (kind === undefined || block.name === undefined || block.id === undefined) return;
+  const input = block.input ?? {};
+  const file = relativeFile(input, line.cwd);
+  const event: ReplayEvent = {
+    id: block.id,
+    kind,
     t: elapsed(state, line.timestamp),
-    title: toTitle(text),
-    text,
-  });
+    title: toTitle(toolTitle(block.name, input, file)),
+  };
+  if (file !== undefined) event.file = file;
+  const text = toolText(block.name, input);
+  if (text !== undefined) event.text = text;
+  state.pendingTools.set(block.id, event);
+  pushReplyEvent(state, line, event);
 }
 
-/** Counts the reply's tokens the first time it is seen and returns them, else undefined. */
-function claimReplyTokens(state: ReadState, line: AssistantLine): TokenUsage | undefined {
-  const replyId = line.requestId ?? line.uuid;
-  const usage = line.message.usage;
-  if (usage === undefined || state.countedReplies.has(replyId)) return undefined;
-  state.countedReplies.add(replyId);
-  const tokens = tokensOf(usage);
-  addTokens(state, line.message.model ?? UNKNOWN_MODEL, tokens);
-  return tokens;
-}
-
-function readAssistant(state: ReadState, line: AssistantLine): void {
-  const tokens = claimReplyTokens(state, line);
-  const text = line.message.content
-    .filter((block) => block.type === "text")
-    .map((block) => block.text ?? "")
-    .join("\n")
-    .trim();
-  if (text === "") return; // thinking or tool calls only (tool calls: F1.4b)
+function readReplyText(state: ReadState, line: AssistantLine, block: ContentBlock): void {
+  const text = block.text?.trim() ?? "";
+  if (text === "") return;
   const event: ReplayEvent = {
     id: line.uuid,
     kind: "assistant",
@@ -90,9 +112,55 @@ function readAssistant(state: ReadState, line: AssistantLine): void {
     title: toTitle(text),
     text,
   };
-  if (line.message.model !== undefined) event.model = line.message.model;
-  if (tokens !== undefined) event.tokens = tokens;
-  state.events.push(event);
+  pushReplyEvent(state, line, event);
+}
+
+function readAssistant(state: ReadState, line: AssistantLine): void {
+  countReplyTokens(state, line);
+  for (const block of line.message.content) {
+    if (block.type === "text") readReplyText(state, line, block);
+    if (block.type === "tool_use") readToolCall(state, line, block);
+  }
+}
+
+/** A failed tool call becomes its own error event; a successful one keeps its output if useful. */
+function readToolResult(state: ReadState, line: UserLine, block: ContentBlock): void {
+  const call =
+    block.tool_use_id === undefined ? undefined : state.pendingTools.get(block.tool_use_id);
+  if (call === undefined) return; // result of a tool we skip (e.g. Skill, ToolSearch)
+  state.pendingTools.delete(call.id);
+  const text = resultText(block).trim();
+  if (block.is_error) {
+    const error: ReplayEvent = {
+      id: `${call.id}-error`,
+      kind: "error",
+      t: elapsed(state, line.timestamp),
+      title: toTitle(`Error: ${text || call.title}`),
+      text,
+    };
+    if (call.file !== undefined) error.file = call.file;
+    state.events.push(error);
+    return;
+  }
+  if (KINDS_WITH_OUTPUT.has(call.kind) && text !== "") call.output = text;
+}
+
+function readUser(state: ReadState, line: UserLine, lineNumber: number): void {
+  if (line.isMeta) return;
+  if (Array.isArray(line.message.content)) {
+    for (const block of line.message.content) {
+      if (block.type === "tool_result") readToolResult(state, line, block);
+    }
+  }
+  const text = promptText(line.message.content);
+  if (text === "") return;
+  state.events.push({
+    id: line.uuid ?? `line-${lineNumber}`,
+    kind: "user",
+    t: elapsed(state, line.timestamp),
+    title: toTitle(text),
+    text,
+  });
 }
 
 function readLine(state: ReadState, raw: string, lineNumber: number): void {
@@ -123,6 +191,8 @@ export async function readEvents(path: string): Promise<EventsRead> {
     origin: undefined,
     tokensByModel: {},
     countedReplies: new Set(),
+    attachedReplies: new Set(),
+    pendingTools: new Map(),
   };
   const lines = createInterface({
     input: createReadStream(path, { encoding: "utf8" }),
@@ -133,6 +203,6 @@ export async function readEvents(path: string): Promise<EventsRead> {
     lineNumber++;
     readLine(state, raw, lineNumber);
   }
-  const { countedReplies: _counted, ...result } = state;
+  const { countedReplies: _c, attachedReplies: _a, pendingTools: _p, ...result } = state;
   return result;
 }

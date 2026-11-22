@@ -31,8 +31,10 @@ export interface ReplayEvent {
   /** Relative to the session's working folder. */
   file?: string;
   diff?: { before: string; after: string; added: number; removed: number };
-  /** Prompt, reply, command or output. Always redacted before it leaves core. */
+  /** Prompt, reply, command or error message. Always redacted before it leaves core. */
   text?: string;
+  /** What a command, search or subagent returned. Always redacted before it leaves core. */
+  output?: string;
   tokens?: TokenUsage;
   model?: string;
   /** Set by group.ts when consecutive reads are merged into one event. */
