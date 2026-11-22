@@ -1,3 +1,4 @@
+export { type LocateOptions, locate, subagentFiles } from "./adapters/claude-code/locate.js";
 export type {
   AgentId,
   EventKind,
