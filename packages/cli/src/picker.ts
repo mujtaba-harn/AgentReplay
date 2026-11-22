@@ -1,6 +1,6 @@
 // The interactive session list (US-1): arrows + Enter, Ctrl+C cancels.
 import { styleText } from "node:util";
-import type { SessionSummary } from "@agentreplay/core";
+import { formatDuration, type SessionSummary } from "@agentreplay/core";
 import { isCancel, select } from "@clack/prompts";
 
 const MINUTE = 60_000;
@@ -12,14 +12,6 @@ const DEFAULT_COLUMNS = 80;
 const ROW_PREFIX_WIDTH = 6;
 const MIN_TITLE_WIDTH = 20;
 const GAP = "  ";
-
-export function formatDuration(ms: number): string {
-  if (ms < MINUTE) return "<1m";
-  if (ms < HOUR) return `${Math.floor(ms / MINUTE)}m`;
-  const hours = Math.floor(ms / HOUR);
-  const minutes = Math.floor((ms % HOUR) / MINUTE);
-  return minutes === 0 ? `${hours}h` : `${hours}h ${minutes}m`;
-}
 
 /** Local calendar date as YYYY-MM-DD, without pulling in a date library. */
 function localDate(epochMs: number): string {

@@ -1,23 +1,12 @@
 import { stripVTControlCharacters } from "node:util";
 import type { SessionSummary } from "@agentreplay/core";
 import { describe, expect, it } from "vitest";
-import { fitTitle, formatAge, formatDuration, sessionDetails, sessionRow } from "../src/picker.js";
+import { fitTitle, formatAge, sessionDetails, sessionRow } from "../src/picker.js";
 
 const MINUTE = 60_000;
 const HOUR = 60 * MINUTE;
 const DAY = 24 * HOUR;
 const NOW = new Date(2026, 10, 23, 12, 0).getTime();
-
-describe("formatDuration", () => {
-  it.each([
-    [20_000, "<1m"],
-    [12 * MINUTE + 30_000, "12m"],
-    [2 * HOUR, "2h"],
-    [HOUR + 5 * MINUTE, "1h 5m"],
-  ])("shows %d ms as %s", (ms, text) => {
-    expect(formatDuration(ms)).toBe(text);
-  });
-});
 
 describe("formatAge", () => {
   it.each([

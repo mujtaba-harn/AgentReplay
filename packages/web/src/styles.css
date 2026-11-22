@@ -1,0 +1,95 @@
+/* Theme tokens: light by default, dark when the system asks for it (ARCHITECTURE.md §9). */
+:root {
+  color-scheme: light dark;
+  --bg: #fafaf9;
+  --surface: #ffffff;
+  --text: #1c1917;
+  --muted: #57534e;
+  --border: #e7e5e4;
+  --accent: #4f46e5;
+  --problem: #b91c1c;
+  --radius: 10px;
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0c0a09;
+    --surface: #1c1917;
+    --text: #f5f5f4;
+    --muted: #a8a29e;
+    --border: #292524;
+    --accent: #818cf8;
+    --problem: #f87171;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  line-height: 1.5;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 16px;
+  gap: 16px;
+}
+
+.session-header h1 {
+  margin: 0;
+  font-size: 1.4rem;
+  overflow-wrap: anywhere;
+}
+
+.session-details {
+  margin: 4px 0 0;
+  color: var(--muted);
+}
+
+.notice {
+  margin: auto;
+  max-width: 34rem;
+  padding: 24px;
+  text-align: center;
+}
+
+.notice-title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.notice-problem .notice-title {
+  color: var(--problem);
+}
+
+.notice-hint {
+  margin: 8px 0 0;
+  color: var(--muted);
+}
+
+.timeline-placeholder {
+  flex: 1;
+  padding: 24px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--muted);
+}
+
+.app-footer {
+  color: var(--muted);
+  font-size: 0.85rem;
+  text-align: center;
+}
