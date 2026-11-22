@@ -113,7 +113,7 @@ Deliberately **not** used in Phase 1: Next.js, Express, Redux, Tailwind plugins 
 
 ```ts
 // packages/core/src/types.ts
-export type EventKind = "user" | "assistant" | "read" | "edit" | "write" | "command" | "search" | "error";
+export type EventKind = "user" | "assistant" | "read" | "edit" | "write" | "command" | "search" | "task" | "subagent" | "error";
 
 export interface ReplayEvent {
   id: string;
@@ -155,14 +155,19 @@ export interface Adapter {
 
 ### Claude Code adapter notes
 - Location: `~/.claude/projects/<encoded-project-path>/<session-id>.jsonl` (resolve home via `os.homedir()`; never hardcode `/Users`). Respect `CLAUDE_CONFIG_DIR` if set.
-- Format: one JSON object per line. Relevant shapes (verify against real fixtures; undocumented):
+- **Subagents write their own file** in a `subagents` folder inside the session folder. `locate()` must find these and link each one to its parent session; they are not listed as separate sessions in the picker.
+- **Resumed sessions (`-c`) append to the same file**, so one file can hold several prompts. Treat the whole file as one session.
+- Format: one JSON object per line. Shapes below are verified against the fixtures (Claude Code 2.1.330, Windows) but remain undocumented and may change:
   - `type: "user"` — `message.content` is a string (prompt) or an array containing `tool_result` blocks.
   - `type: "assistant"` — `message.content` array with `text` and `tool_use` blocks; `message.usage` holds token counts; `message.model` holds the model id.
-  - Each line has `timestamp`, `uuid`, `parentUuid`, `cwd`, `sessionId`.
-- Tool mapping: `Read → read`, `Edit / MultiEdit → edit`, `Write → write`, `Bash → command`, `Grep / Glob → search`. A `tool_result` with `is_error: true` → `error`. Anything else → skipped and counted.
+  - `type: "cost-state"` — exact totals: `totalCostUSD`, `totalLinesAdded`, `totalLinesRemoved`, `totalDuration` and per-model token usage (`modelUsage`). Written several times per session; each is a running total, so use the last one. When present, stats use these instead of our own estimate; `pricing.ts` is the fallback.
+  - `type: "attachment"` — the environment snapshot carries the working folder (`workingDirectory`) and `platform`; use them for the project name and OS.
+  - Conversation lines have `timestamp`, `uuid`, `parentUuid`, `cwd`, `sessionId`.
+- **Most lines are not conversation.** Logs also contain `session-owner`, `queue-operation`, `data-flow-records`, `atis-latch`, `last-prompt`, `api-request-shape`, `api-request-blob`, `api-request`, `tools-used` and `mode`. Skip these, and any type we don't recognise, quietly. `warnings.skippedLines` counts only broken JSON and `user`/`assistant` lines that fail their schema, so the number means "something we should have understood but couldn't".
+- Tool mapping: `Read → read`, `Edit / MultiEdit → edit`, `Write → write`, `Bash / PowerShell → command`, `Grep / Glob → search`, `TaskCreate / TaskUpdate → task`, `Agent → subagent`. A `tool_result` with `is_error: true` → `error`. Anything else (e.g. `Skill`, `ToolSearch`) → skipped. Note the real names: the task list is `TaskCreate` / `TaskUpdate` (not `TodoWrite`), and subagents are `Agent` (not `Task`).
 - Pair `tool_use` with its `tool_result` by `tool_use_id` to attach command output and errors.
 - Parse with `readline` over a stream — never `readFileSync` + `split` on large files.
-- `summarize()` reads the first user prompt and the file's last line only.
+- `summarize()` reads the first user prompt and the file's last line only. In a finished session the last line is a `cost-state` (no `timestamp`): use its `startTime` and `totalDuration`. If it is anything else (e.g. a crashed session), fall back to the last line that has a `timestamp`.
 
 ## 7. Secret redaction
 
