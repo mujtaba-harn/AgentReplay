@@ -3,6 +3,7 @@
 import { createReadStream } from "node:fs";
 import { createInterface } from "node:readline";
 import type { ReplayEvent, TokenUsage } from "../../types.js";
+import { diffOf } from "./diff.js";
 import {
   type AssistantLine,
   assistantLineSchema,
@@ -143,6 +144,10 @@ function readToolResult(state: ReadState, line: UserLine, block: ContentBlock): 
     return;
   }
   if (KINDS_WITH_OUTPUT.has(call.kind) && text !== "") call.output = text;
+  if (call.kind === "edit" || call.kind === "write") {
+    const diff = diffOf(line.toolUseResult);
+    if (diff !== undefined) call.diff = diff;
+  }
 }
 
 function readUser(state: ReadState, line: UserLine, lineNumber: number): void {

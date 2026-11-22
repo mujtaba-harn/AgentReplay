@@ -24,6 +24,8 @@ export const userLineSchema = z.object({
   uuid: z.string().optional(),
   cwd: z.string().optional(),
   isMeta: z.boolean().optional(),
+  /** Structured result of the line's tool call (one tool_result per line); shape depends on the tool. */
+  toolUseResult: z.unknown().optional(),
   message: z.object({
     content: z.union([z.string(), z.array(contentBlockSchema)]),
   }),
@@ -62,3 +64,13 @@ export const timestampedLineSchema = z.object({ timestamp: z.iso.datetime() });
 export type UserLine = z.infer<typeof userLineSchema>;
 export type AssistantLine = z.infer<typeof assistantLineSchema>;
 export type ContentBlock = z.infer<typeof contentBlockSchema>;
+
+/** `toolUseResult` of a successful Edit or Write. Write uses type "create" for a new file. */
+export const editResultSchema = z.object({
+  type: z.string().optional(),
+  content: z.string().optional(),
+  originalFile: z.string().nullable().optional(),
+  oldString: z.string().optional(),
+  newString: z.string().optional(),
+  structuredPatch: z.array(z.object({ lines: z.array(z.string()) })).optional(),
+});
