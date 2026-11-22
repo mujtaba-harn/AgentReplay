@@ -1,0 +1,106 @@
+/* Step detail (F1.17): next to the list on wide screens, below it on narrow ones. */
+.replay-body {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  gap: 12px;
+  margin: 0 8px;
+}
+
+.replay-body .step-list {
+  margin: 0;
+}
+
+@media (max-width: 800px) {
+  .replay-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.step-detail {
+  min-width: 0;
+  max-height: 60vh;
+  overflow: auto;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.step-detail h2 {
+  margin: 0;
+  font-size: 1.05rem;
+  overflow-wrap: anywhere;
+}
+
+.step-detail h3 {
+  margin: 16px 0 6px;
+  color: var(--muted);
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.detail-meta,
+.detail-note {
+  margin: 6px 0 0;
+  color: var(--muted);
+}
+
+.detail-text,
+.diff {
+  margin: 0;
+  padding: 10px 12px;
+  overflow-x: auto;
+  border-radius: 6px;
+  background: var(--bg);
+  font:
+    0.85rem / 1.45 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    Consolas,
+    monospace;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.diff {
+  white-space: pre;
+  overflow-wrap: normal;
+}
+
+.diff-line {
+  display: block;
+}
+
+.diff-line.diff-add {
+  background: color-mix(in srgb, var(--kind-edit) 15%, transparent);
+}
+
+.diff-line.diff-remove {
+  background: color-mix(in srgb, var(--kind-error) 15%, transparent);
+}
+
+.diff-counts .diff-add {
+  color: var(--kind-edit);
+  font-weight: 600;
+}
+
+.diff-counts .diff-remove {
+  color: var(--kind-error);
+  font-weight: 600;
+}
+
+.show-more,
+.link-button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.show-more {
+  margin-top: 6px;
+}

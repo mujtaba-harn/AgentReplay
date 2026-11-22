@@ -1,7 +1,7 @@
 import type { ReplayEvent } from "@agentreplay/core";
 import { useEffect, useMemo, useRef } from "react";
 import { Virtuoso, type VirtuosoHandle } from "react-virtuoso";
-import { FILTERS, type Filter, isVisible } from "../state";
+import { FILTERS, type Filter, visibleIndexes } from "../state";
 import { Notice } from "./Notice";
 
 interface StepListProps {
@@ -24,11 +24,7 @@ export function formatClock(ms: number): string {
 
 /** PRD US-2: every step in order, virtualized so 2,000+ steps stay smooth. */
 export function StepList({ events, index, filter, onJump }: StepListProps) {
-  // Positions in session.events of the steps this filter shows — derived, never stored.
-  const shown = useMemo(
-    () => events.flatMap((e, i) => (isVisible(e.kind, filter) ? [i] : [])),
-    [events, filter],
-  );
+  const shown = useMemo(() => visibleIndexes(events, filter), [events, filter]);
   const list = useRef<VirtuosoHandle>(null);
   const row = shown.indexOf(index);
 

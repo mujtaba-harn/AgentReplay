@@ -223,7 +223,7 @@ Security: bind `127.0.0.1` only; reject requests whose `Host` header isn't `127.
 ## 9. Web UI architecture
 
 - **One state reducer** (`state.ts`): `{ session, index, playing, speed, filter, cardOpen }`. Components read state and dispatch actions; no prop-drilling chains, no global store library.
-- **Playback**: a single `useEffect` timer advances `index`; delay = `min(realGap / speed, 1500ms)` so idle gaps compress.
+- **Playback**: a single `useEffect` timer advances `index`; delay = `min(realGap / speed, 1500ms)` so idle gaps compress, and at least 100 ms so steps that happened together are still seen one by one.
 - **Derived data with `useMemo`**: filtered events, track marker positions. Never stored in state.
 - **Virtualized step list** from the start; it costs nothing and avoids a rewrite.
 - **Card** is a normal component rendered at 1080×1920 in an off-screen node, exported via `html-to-image`.

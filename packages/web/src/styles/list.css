@@ -1,0 +1,100 @@
+/* Filters and step list (F1.16). */
+.replay {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 8px;
+  padding: 0;
+  border: 0;
+}
+
+.filter-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.filter-button[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.filter-count {
+  font-size: 0.8rem;
+  opacity: 0.75;
+}
+
+.step-list {
+  height: 60vh;
+  margin: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.step-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 6px 12px;
+  border: 0;
+  border-left: 3px solid transparent;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.step-row:hover {
+  background: var(--bg);
+}
+
+.step-row[aria-current="step"] {
+  border-left-color: var(--accent);
+  background: var(--bg);
+  font-weight: 600;
+}
+
+.step-time {
+  flex: none;
+  width: 4.5em;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.kind-dot {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--kind-color, var(--muted));
+}
+
+.step-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.app-footer {
+  color: var(--muted);
+  font-size: 0.85rem;
+  text-align: center;
+}

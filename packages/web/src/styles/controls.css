@@ -1,0 +1,54 @@
+/* Playback controls (F1.18). */
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin: 0 8px;
+}
+
+.play-button {
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--bg);
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.play-button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.scrubber {
+  flex: 1;
+  min-width: 160px;
+  accent-color: var(--accent);
+}
+
+.speeds {
+  display: flex;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.speed-button {
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.speed-button[aria-pressed="true"] {
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}

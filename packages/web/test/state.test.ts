@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   initialPlayback,
   isVisible,
+  nextVisible,
   type PlaybackState,
   playbackDelay,
   playbackReducer,
@@ -88,12 +89,18 @@ describe("playbackReducer", () => {
     expect(playbackReducer(state, { type: "play" })).toMatchObject({ index: 2, playing: true });
   });
 
-  it("advances on each tick and stops at the end", () => {
-    const playing = at(5, { playing: true });
-    const next = playbackReducer(playing, { type: "tick" });
+  it("advances on each tick", () => {
+    expect(playbackReducer(at(4, { playing: true }), { type: "tick" })).toMatchObject({
+      index: 5,
+      playing: true,
+    });
+  });
 
-    expect(next).toMatchObject({ index: 6, playing: true });
-    expect(playbackReducer(next, { type: "tick" })).toMatchObject({ index: 6, playing: false });
+  it("stops as soon as it reaches the last step", () => {
+    expect(playbackReducer(at(5, { playing: true }), { type: "tick" })).toMatchObject({
+      index: 6,
+      playing: false,
+    });
   });
 
   it("changes speed", () => {
@@ -127,6 +134,13 @@ describe("playbackReducer", () => {
   });
 });
 
+describe("nextVisible", () => {
+  it("is the next step the filter shows, or undefined at the end", () => {
+    expect(nextVisible(at(2, { filter: "edits" }))).toBe(5);
+    expect(nextVisible(at(5, { filter: "edits" }))).toBeUndefined();
+  });
+});
+
 describe("playbackDelay", () => {
   it("divides the real gap by the speed", () => {
     expect(playbackDelay(1000, 5)).toBe(200);
@@ -136,7 +150,8 @@ describe("playbackDelay", () => {
     expect(playbackDelay(10 * 60_000, 1)).toBe(1500);
   });
 
-  it("never waits a negative time", () => {
-    expect(playbackDelay(-50, 1)).toBe(0);
+  it("waits at least 0.1 s, so steps that happened together are still visible one by one", () => {
+    expect(playbackDelay(0, 20)).toBe(100);
+    expect(playbackDelay(-50, 1)).toBe(100);
   });
 });
