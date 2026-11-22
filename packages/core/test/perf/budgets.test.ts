@@ -16,10 +16,16 @@ describe("performance budgets", () => {
     const paths = Array.from({ length: 200 }, (_, i) =>
       join(FIXTURES, SESSIONS[i % SESSIONS.length] ?? ""),
     );
+    const summarizeAll = async () => {
+      for (let i = 0; i < paths.length; i += 8) {
+        await Promise.all(paths.slice(i, i + 8).map(summarize));
+      }
+    };
+    // One untimed round first: the OS's first look at freshly written files (e.g. virus
+    // scanning on Windows) once took 1.5 s here, versus 0.3–0.6 s normally.
+    await summarizeAll();
     const started = performance.now();
-    for (let i = 0; i < paths.length; i += 8) {
-      await Promise.all(paths.slice(i, i + 8).map(summarize));
-    }
+    await summarizeAll();
 
     expect(performance.now() - started).toBeLessThan(1000);
   });
