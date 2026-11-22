@@ -46,7 +46,7 @@ describe("EventTrack", () => {
 
     const markers = screen.getAllByRole("button");
     expect(markers).toHaveLength(3);
-    expect(markers[1]?.className).toContain("marker-edit");
+    expect(markers[1]?.className).toContain("kind-edit");
   });
 
   it("outlines the current step", () => {

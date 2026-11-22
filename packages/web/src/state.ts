@@ -31,6 +31,14 @@ const FILTER_KINDS: Readonly<Record<Exclude<Filter, "all">, readonly EventKind[]
   errors: ["error"],
 };
 
+/** The filter buttons, in order, with what to say when a filter matches nothing. */
+export const FILTERS: readonly { value: Filter; label: string; empty: string }[] = [
+  { value: "all", label: "All", empty: "This session has no steps." },
+  { value: "edits", label: "Edits", empty: "No file edits in this session." },
+  { value: "commands", label: "Commands", empty: "No commands in this session." },
+  { value: "errors", label: "Errors", empty: "No errors in this session." },
+];
+
 /** The longest pause between two steps while playing, whatever the real gap was. */
 export const MAX_STEP_DELAY_MS = 1500;
 

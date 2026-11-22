@@ -34,7 +34,7 @@ export function EventTrack({ events, index, filter, onJump }: EventTrackProps) {
             type="button"
             // Arrow keys step through events (F1.18); one tab stop per marker would be thousands.
             tabIndex={-1}
-            className={`marker marker-${event.kind}${shown ? "" : " is-hidden"}`}
+            className={`marker kind-${event.kind}${shown ? "" : " is-hidden"}`}
             style={{ left: `${positions[i] ?? 0}%` }}
             aria-label={event.title}
             aria-current={i === index ? "step" : undefined}
