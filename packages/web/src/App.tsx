@@ -1,4 +1,5 @@
 import { Notice, PROBLEM_TEXT } from "./components/Notice";
+import { Replay } from "./components/Replay";
 import { SessionHeader } from "./components/SessionHeader";
 import { type ReplayState, useReplay } from "./useReplay";
 
@@ -16,9 +17,7 @@ export function ReplayScreen({ state }: { state: ReplayState }) {
           hint="It ended before Claude did anything."
         />
       ) : (
-        <section className="timeline-placeholder" aria-label="Timeline">
-          The timeline arrives in the next steps (F1.15–F1.18).
-        </section>
+        <Replay session={session} />
       )}
     </>
   );

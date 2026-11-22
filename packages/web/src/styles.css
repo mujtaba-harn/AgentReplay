@@ -79,13 +79,97 @@ body {
   color: var(--muted);
 }
 
-.timeline-placeholder {
-  flex: 1;
-  padding: 24px;
-  border: 1px dashed var(--border);
+/* Event track (F1.15): one marker per step, coloured by kind. */
+:root {
+  --kind-user: #2563eb;
+  --kind-assistant: #78716c;
+  --kind-read: #0891b2;
+  --kind-edit: #16a34a;
+  --kind-write: #65a30d;
+  --kind-command: #d97706;
+  --kind-search: #7c3aed;
+  --kind-task: #c026d3;
+  --kind-subagent: #db2777;
+  --kind-error: #dc2626;
+}
+
+.event-track {
+  position: relative;
+  min-width: 0; /* a fieldset otherwise refuses to shrink below its content */
+  height: 44px;
+  margin: 0 8px;
+  padding: 0;
   border-radius: var(--radius);
   background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.marker {
+  position: absolute;
+  top: 10px;
+  width: 6px;
+  height: 22px;
+  margin-left: -3px;
+  padding: 0;
+  border: 0;
+  border-radius: 3px;
+  background: var(--marker-color, var(--muted));
+  cursor: pointer;
+}
+
+.marker:hover {
+  transform: scaleY(1.25);
+}
+
+.marker.is-hidden {
+  opacity: 0.15;
+  cursor: default;
+}
+
+.marker[aria-current="step"] {
+  z-index: 1;
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
+.marker-user {
+  --marker-color: var(--kind-user);
+}
+.marker-assistant {
+  --marker-color: var(--kind-assistant);
+}
+.marker-read {
+  --marker-color: var(--kind-read);
+}
+.marker-edit {
+  --marker-color: var(--kind-edit);
+}
+.marker-write {
+  --marker-color: var(--kind-write);
+}
+.marker-command {
+  --marker-color: var(--kind-command);
+}
+.marker-search {
+  --marker-color: var(--kind-search);
+}
+.marker-task {
+  --marker-color: var(--kind-task);
+}
+.marker-subagent {
+  --marker-color: var(--kind-subagent);
+}
+.marker-error {
+  --marker-color: var(--kind-error);
+}
+
+.current-step {
+  margin: 8px 8px 0;
   color: var(--muted);
+}
+
+.current-title {
+  color: var(--text);
 }
 
 .app-footer {

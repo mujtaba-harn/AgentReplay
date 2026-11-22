@@ -9,6 +9,11 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
+    "./timeline": {
+      "@agentreplay/source": "./src/group.ts",
+      "types": "./dist/group.d.ts",
+      "default": "./dist/group.js"
+    },
     "./format": {
       "@agentreplay/source": "./src/format.ts",
       "types": "./dist/format.d.ts",
