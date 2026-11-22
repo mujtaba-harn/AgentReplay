@@ -18,6 +18,8 @@ const PUBLIC_DIR = fileURLToPath(new URL("./fixtures/", import.meta.url));
 const PRIVATE_DIR = fileURLToPath(new URL("./fixtures-private/", import.meta.url));
 const SECRETS_FIXTURE = "08-secrets-fake.jsonl";
 const FIXTURES = readdirSync(PUBLIC_DIR).filter((name) => name.endsWith(".jsonl"));
+// Hand-written fixtures (e.g. 11-vscode-pasted-prompt) have no full log to compare against.
+const RECORDED = FIXTURES.filter((name) => existsSync(join(PRIVATE_DIR, name)));
 
 function readLines(dir: string, name: string): string[] {
   return readFileSync(join(dir, name), "utf8")
@@ -67,12 +69,12 @@ describe("committed fixtures", () => {
 describe.skipIf(!existsSync(PRIVATE_DIR))(
   "public fixtures vs full logs in fixtures-private/",
   () => {
-    it.each(FIXTURES)("%s: same line types in the same order", (name) => {
+    it.each(RECORDED)("%s: same line types in the same order", (name) => {
       const types = (dir: string) => readLines(dir, name).map((line) => lineType(JSON.parse(line)));
       expect(types(PUBLIC_DIR)).toEqual(types(PRIVATE_DIR));
     });
 
-    it.each(FIXTURES)("%s: user, assistant and cost-state lines are unchanged", (name) => {
+    it.each(RECORDED)("%s: user, assistant and cost-state lines are unchanged", (name) => {
       const full = readLines(PRIVATE_DIR, name);
       readLines(PUBLIC_DIR, name).forEach((line, i) => {
         const type = lineType(JSON.parse(line));
@@ -90,7 +92,7 @@ describe.skipIf(!existsSync(PRIVATE_DIR))(
             .map((l) => l.trim())
             .filter((l) => l.length >= 60),
         );
-      const fullParsed = FIXTURES.flatMap((name) =>
+      const fullParsed = RECORDED.flatMap((name) =>
         readLines(PRIVATE_DIR, name).map((line): unknown => JSON.parse(line)),
       );
       const conversation = textLines(fullParsed.filter((p) => !isStubbed(p)));
