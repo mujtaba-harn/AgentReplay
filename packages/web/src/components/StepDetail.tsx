@@ -2,8 +2,8 @@
 import type { EventKind, ReplayEvent } from "@agentreplay/core";
 import { lazy, Suspense } from "react";
 import { fixedBy } from "../errors";
+import { formatClock } from "../format";
 import { ShowMore } from "./ShowMore";
-import { formatClock } from "./StepList";
 
 const DiffView = lazy(() => import("./DiffView"));
 

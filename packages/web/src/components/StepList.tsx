@@ -1,6 +1,7 @@
 import type { ReplayEvent } from "@agentreplay/core";
 import { useEffect, useMemo, useRef } from "react";
 import { Virtuoso, type VirtuosoHandle } from "react-virtuoso";
+import { formatClock } from "../format";
 import { FILTERS, type Filter, visibleIndexes } from "../state";
 import { Notice } from "./Notice";
 
@@ -9,17 +10,6 @@ interface StepListProps {
   index: number;
   filter: Filter;
   onJump: (index: number) => void;
-}
-
-const pad = (n: number): string => String(n).padStart(2, "0");
-
-/** Time since the session started, as m:ss or h:mm:ss. */
-export function formatClock(ms: number): string {
-  const seconds = Math.floor(ms / 1000);
-  const hours = Math.floor(seconds / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-  const clock = `${pad(minutes)}:${pad(seconds % 60)}`;
-  return hours > 0 ? `${hours}:${clock}` : clock.replace(/^0/, "");
 }
 
 /** PRD US-2: every step in order, virtualized so 2,000+ steps stay smooth. */

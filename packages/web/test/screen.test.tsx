@@ -13,7 +13,16 @@ const session = {
   startedAt: 0,
   durationMs: 14 * 60_000,
   events: [{ id: "e1", kind: "user", t: 0, title: "Fix the login bug" }],
-  stats: { durationMs: 14 * 60_000 },
+  stats: {
+    durationMs: 14 * 60_000,
+    filesChanged: 0,
+    linesAdded: 0,
+    linesRemoved: 0,
+    toolCalls: 0,
+    tokens: { in: 0, out: 0, cacheRead: 0, cacheWrite: 0 },
+    costUsd: 0,
+    costSource: "exact",
+  },
   warnings: { skippedLines: 0, redactions: 0 },
 } as unknown as ReplaySession;
 

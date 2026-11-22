@@ -1,6 +1,7 @@
 import { Notice, PROBLEM_TEXT } from "./components/Notice";
 import { Replay } from "./components/Replay";
 import { SessionHeader } from "./components/SessionHeader";
+import { StatsPanel } from "./components/StatsPanel";
 import { type ReplayState, useReplay } from "./useReplay";
 
 /** What to show for each loading state; kept apart from the hook so it can be tested on its own. */
@@ -11,6 +12,7 @@ export function ReplayScreen({ state }: { state: ReplayState }) {
   return (
     <>
       <SessionHeader session={session} />
+      <StatsPanel session={session} />
       {session.events.length === 0 ? (
         <Notice
           title="This session has no steps to replay."

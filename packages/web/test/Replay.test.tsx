@@ -5,7 +5,6 @@ import type { ReactNode } from "react";
 import { VirtuosoMockContext } from "react-virtuoso";
 import { afterEach, describe, expect, it } from "vitest";
 import { Replay } from "../src/components/Replay";
-import { formatClock } from "../src/components/StepList";
 
 const KINDS: EventKind[] = ["user", "read", "edit", "command", "error", "command", "assistant"];
 
@@ -29,16 +28,6 @@ const list = () => screen.getByRole("region", { name: "Steps" });
 const rows = () => within(list()).getAllByRole("button");
 
 afterEach(cleanup);
-
-describe("formatClock", () => {
-  it.each([
-    [0, "0:00"],
-    [65_000, "1:05"],
-    [3_725_000, "1:02:05"],
-  ])("shows %d ms as %s", (ms, text) => {
-    expect(formatClock(ms)).toBe(text);
-  });
-});
 
 describe("step list", () => {
   it("lists every step in order with its time", () => {

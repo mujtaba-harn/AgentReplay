@@ -1,0 +1,47 @@
+/* Stats panel and privacy notice (F1.19). */
+.stats {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stat-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 8px;
+  margin: 0;
+}
+
+.stat-tile {
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.stat-tile dt {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.stat-tile dd {
+  margin: 2px 0 0;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.privacy-notice,
+.skipped-notice {
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+}
+
+.privacy-notice {
+  background: color-mix(in srgb, var(--kind-edit) 12%, transparent);
+}
+
+.skipped-notice {
+  background: color-mix(in srgb, var(--kind-command) 12%, transparent);
+}
