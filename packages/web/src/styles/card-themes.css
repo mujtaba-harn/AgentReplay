@@ -1,0 +1,81 @@
+/* Recap card themes (F1.20): each sets the card's tokens and a few accents. */
+/* Terminal: near-black and green, all monospace. */
+.card-terminal {
+  --card-bg: #0b0f0c;
+  --card-text: #f0fdf4;
+  --card-muted: #8fb39a;
+  --card-accent: #4ade80;
+  --card-tile: #13221a;
+  --card-moment-bg: #13221a;
+  --card-moment-text: #f0fdf4;
+  --card-edit: #4ade80;
+  --card-command: #facc15;
+  --card-error: #f87171;
+  --card-other: #2f4a37;
+  --card-font: ui-monospace, "Cascadia Mono", Consolas, Menlo, monospace;
+  --card-title-font: var(--card-font);
+  --card-title-weight: 700;
+  --card-strip-radius: 0;
+  --card-tile-radius: 16px;
+}
+
+/* Violet: deep violet, lilac accents, bold sans-serif. */
+.card-violet {
+  --card-bg: #1a1030;
+  --card-text: #ffffff;
+  --card-muted: #b8a9e0;
+  --card-accent: #a78bfa;
+  --card-tile: #2b1d4d;
+  --card-moment-bg: #a78bfa;
+  --card-moment-text: #1a1030;
+  --card-edit: #a78bfa;
+  --card-command: #fbbf24;
+  --card-error: #fb7185;
+  --card-other: #3b2a63;
+  --card-font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --card-title-font: var(--card-font);
+  --card-title-weight: 800;
+  --card-strip-radius: 14px;
+  --card-tile-radius: 28px;
+}
+
+/* Clay: warm paper, serif titles and numbers. */
+.card-clay {
+  --card-bg: #f4efe6;
+  --card-text: #2a211b;
+  --card-muted: #6b5b4e;
+  --card-accent: #b85c38;
+  --card-tile: #ebe2d3;
+  --card-moment-bg: #ebe2d3;
+  --card-moment-text: #2a211b;
+  --card-edit: #b85c38;
+  --card-command: #3f6e8c;
+  --card-error: #9a4a28;
+  --card-other: #ddd2c2;
+  --card-font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --card-title-font: Georgia, "Iowan Old Style", "Times New Roman", serif;
+  --card-title-weight: 400;
+  --card-strip-radius: 0;
+  --card-tile-radius: 0;
+}
+
+.card-clay .card-heading::before {
+  content: "";
+  width: 96px;
+  height: 6px;
+  background: var(--card-accent);
+}
+
+.card-terminal .card-moment-label {
+  color: var(--card-accent);
+  text-transform: lowercase;
+}
+
+.card-terminal .card-moment-label::before {
+  content: "> ";
+}
+
+.card-clay .card-moment-label {
+  color: var(--card-accent);
+  font-weight: 400;
+}

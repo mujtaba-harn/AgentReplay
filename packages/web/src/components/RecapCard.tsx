@@ -11,6 +11,7 @@ import {
   stripBars,
   topFileNames,
 } from "../card";
+import { biggestMoment } from "../moment";
 
 export type CardTheme = "terminal" | "violet" | "clay";
 
@@ -59,6 +60,10 @@ export function RecapCard({ session, options }: RecapCardProps) {
   const { theme } = options;
   const bars = useMemo(() => stripBars(session.events), [session.events]);
   const files = useMemo(() => topFileNames(session.events), [session.events]);
+  const moment = useMemo(
+    () => biggestMoment(session.events, options.showFiles),
+    [session.events, options.showFiles],
+  );
   const stats = cardStats(session, options.stats);
   const steps = session.events.length;
   const title = options.title.trim() || session.title;
@@ -106,6 +111,15 @@ export function RecapCard({ session, options }: RecapCardProps) {
           </div>
         ))}
       </dl>
+      {moment && (
+        <div className="card-moment">
+          <span className="card-moment-label">Biggest moment</span>
+          <span className="card-moment-headline">{moment.headline}</span>
+          <span className="card-moment-step">
+            Step {moment.step.toLocaleString("en-US")} of {steps.toLocaleString("en-US")}
+          </span>
+        </div>
+      )}
       <div className="card-footer">
         <span className="card-wordmark">
           agent<span>replay</span>

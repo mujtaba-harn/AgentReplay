@@ -5,7 +5,10 @@ import type { ReplayEvent } from "@agentreplay/core";
 const ERROR_SUFFIX = "-error";
 
 /** The step whose tool call produced the error at `errorIndex`. */
-function failedStep(events: readonly ReplayEvent[], errorIndex: number): ReplayEvent | undefined {
+export function failedStep(
+  events: readonly ReplayEvent[],
+  errorIndex: number,
+): ReplayEvent | undefined {
   const error = events[errorIndex];
   if (error?.kind !== "error" || !error.id.endsWith(ERROR_SUFFIX)) return undefined;
   const callId = error.id.slice(0, -ERROR_SUFFIX.length);

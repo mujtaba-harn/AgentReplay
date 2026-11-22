@@ -56,6 +56,15 @@ describe("RecapCard", () => {
     }
   });
 
+  it("shows the biggest moment and where it happened", () => {
+    const { container } = render(<RecapCard session={session} options={defaultCardOptions()} />);
+    const moment = container.querySelector(".card-moment")?.textContent ?? "";
+
+    expect(moment).toContain("Biggest moment");
+    expect(moment).toContain("Biggest change: +1 −0 lines");
+    expect(moment).toContain("Step 2 of 4");
+  });
+
   it("draws one strip bar per step, coloured by kind", () => {
     const { container } = render(
       <RecapCard session={session} options={{ ...defaultCardOptions(), theme: "terminal" }} />,

@@ -30,7 +30,7 @@
 .recap-card {
   display: flex;
   flex-direction: column;
-  gap: 72px;
+  gap: 56px;
   box-sizing: border-box;
   width: 1080px;
   height: 1920px;
@@ -38,6 +38,7 @@
   background: var(--card-bg);
   color: var(--card-text);
   font-family: var(--card-font);
+  overflow: hidden; /* nothing may spill past 1080×1920 */
 }
 
 .card-frame .recap-card {
@@ -82,7 +83,7 @@
   font-weight: var(--card-title-weight);
   line-height: 1.05;
   letter-spacing: -1px;
-  -webkit-line-clamp: 4;
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow-wrap: anywhere;
 }
@@ -201,63 +202,32 @@
   color: var(--card-accent);
 }
 
-/* Terminal: near-black and green, all monospace. */
-.card-terminal {
-  --card-bg: #0b0f0c;
-  --card-text: #f0fdf4;
-  --card-muted: #8fb39a;
-  --card-accent: #4ade80;
-  --card-tile: #13221a;
-  --card-edit: #4ade80;
-  --card-command: #facc15;
-  --card-error: #f87171;
-  --card-other: #2f4a37;
-  --card-font: ui-monospace, "Cascadia Mono", Consolas, Menlo, monospace;
-  --card-title-font: var(--card-font);
-  --card-title-weight: 700;
-  --card-strip-radius: 0;
-  --card-tile-radius: 16px;
+.card-moment {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 44px;
+  border-radius: var(--card-tile-radius);
+  background: var(--card-moment-bg);
+  color: var(--card-moment-text);
 }
 
-/* Violet: deep violet, lilac accents, bold sans-serif. */
-.card-violet {
-  --card-bg: #1a1030;
-  --card-text: #ffffff;
-  --card-muted: #b8a9e0;
-  --card-accent: #a78bfa;
-  --card-tile: #2b1d4d;
-  --card-edit: #a78bfa;
-  --card-command: #fbbf24;
-  --card-error: #fb7185;
-  --card-other: #3b2a63;
-  --card-font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --card-title-font: var(--card-font);
-  --card-title-weight: 800;
-  --card-strip-radius: 14px;
-  --card-tile-radius: 28px;
+.card-moment-label {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
 }
 
-/* Clay: warm paper, serif titles and numbers. */
-.card-clay {
-  --card-bg: #f4efe6;
-  --card-text: #2a211b;
-  --card-muted: #6b5b4e;
-  --card-accent: #b85c38;
-  --card-tile: #ebe2d3;
-  --card-edit: #b85c38;
-  --card-command: #3f6e8c;
-  --card-error: #9a4a28;
-  --card-other: #ddd2c2;
-  --card-font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --card-title-font: Georgia, "Iowan Old Style", "Times New Roman", serif;
-  --card-title-weight: 400;
-  --card-strip-radius: 0;
-  --card-tile-radius: 0;
+.card-moment-headline {
+  font-family: var(--card-title-font);
+  font-size: 46px;
+  font-weight: var(--card-title-weight);
+  line-height: 1.25;
+  overflow-wrap: anywhere;
 }
 
-.card-clay .card-heading::before {
-  content: "";
-  width: 96px;
-  height: 6px;
-  background: var(--card-accent);
+.card-moment-step {
+  font-size: 26px;
+  opacity: 0.8;
 }
