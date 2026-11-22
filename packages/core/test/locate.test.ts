@@ -2,7 +2,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { locate, subagentFiles } from "../src/adapters/claude-code/locate.js";
+import { locate, sessionsFolder, subagentFiles } from "../src/adapters/claude-code/locate.js";
 
 const SESSION_A = "11111111-1111-1111-1111-111111111111";
 const SESSION_B = "22222222-2222-2222-2222-222222222222";
@@ -69,6 +69,15 @@ describe("locate", () => {
     const found = await locate({ homedir: home, env: {} });
 
     expect(found).toEqual([wanted]);
+  });
+});
+
+describe("sessionsFolder", () => {
+  it("is the projects folder that locate searches", () => {
+    expect(sessionsFolder({ homedir: home, env: {} })).toBe(join(home, ".claude", "projects"));
+    expect(sessionsFolder({ homedir: home, env: { CLAUDE_CONFIG_DIR: join(home, "c") } })).toBe(
+      join(home, "c", "projects"),
+    );
   });
 });
 

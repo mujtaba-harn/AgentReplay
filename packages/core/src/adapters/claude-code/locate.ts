@@ -34,9 +34,14 @@ async function logFilesIn(dir: string): Promise<string[]> {
     .map((entry) => join(dir, entry.name));
 }
 
+/** The folder `locate` searches, so callers can say where they looked when nothing is found. */
+export function sessionsFolder(options: LocateOptions = {}): string {
+  return join(claudeRoot(options), "projects");
+}
+
 /** Absolute paths of every main session log. Subagent logs are found per session with `subagentFiles`. */
 export async function locate(options: LocateOptions = {}): Promise<string[]> {
-  const projectsDir = join(claudeRoot(options), "projects");
+  const projectsDir = sessionsFolder(options);
   const projects = (await listEntries(projectsDir)).filter((entry) => entry.isDirectory());
   const perProject = await Promise.all(projects.map((p) => logFilesIn(join(projectsDir, p.name))));
   return perProject.flat();
