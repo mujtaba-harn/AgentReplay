@@ -7,6 +7,7 @@ import {
   DEFAULT_CARD_STATS,
   MAX_CARD_STATS,
   MAX_STRIP_BARS,
+  titleSize,
   topFileNames,
 } from "../src/card";
 
@@ -80,6 +81,27 @@ describe("cardStats", () => {
     const all = CARD_STATS.map((stat) => stat.id);
 
     expect(cardStats(session, all)).toHaveLength(MAX_CARD_STATS);
+  });
+});
+
+describe("titleSize", () => {
+  it.each([
+    ["Fix the login bug", 96],
+    ["Built an expense tracker with charts and CSV", 84],
+    ["Read CLAUDE.md, docs/, and packages/core/test/fixtures/READ…", 62],
+    ["x".repeat(80), 46],
+  ])("sizes %j at %ipx", (title, px) => {
+    expect(titleSize(title)).toBe(px);
+  });
+
+  // The widest theme font (monospace) is about 0.6 em per letter; wrapping wastes ~15%.
+  it("fits even the longest title in three lines of the 888px-wide title area", () => {
+    for (const length of [10, 32, 33, 44, 45, 60, 61, 80]) {
+      const px = titleSize("x".repeat(length));
+      const lettersPerLine = Math.floor(888 / (0.6 * px));
+
+      expect(lettersPerLine * 3).toBeGreaterThanOrEqual(Math.ceil(length * 1.15));
+    }
   });
 });
 

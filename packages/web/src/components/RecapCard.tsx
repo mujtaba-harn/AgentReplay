@@ -9,6 +9,7 @@ import {
   cardStats,
   DEFAULT_CARD_STATS,
   stripBars,
+  titleSize,
   topFileNames,
 } from "../card";
 import { biggestMoment } from "../moment";
@@ -77,7 +78,9 @@ export function RecapCard({ session, options, ref }: RecapCardProps) {
       </div>
       <div className="card-heading">
         <span className="card-kicker">{KICKER[theme]}</span>
-        <h1 className="card-title">{title}</h1>
+        <h1 className="card-title" style={{ fontSize: `${titleSize(title)}px` }}>
+          {title}
+        </h1>
       </div>
       <div className="card-strip-block">
         <div className="card-strip">

@@ -122,6 +122,21 @@ export function cardStats(session: ReplaySession, chosen: readonly CardStatId[])
     .map(({ stat }) => stat(session));
 }
 
+/**
+ * Longer titles get smaller type so the whole title fits in three lines, in every theme.
+ * Sized for monospace (the widest theme font); found on a real card where 96px cut a title off.
+ */
+const TITLE_SIZES: readonly { maxLetters: number; px: number }[] = [
+  { maxLetters: 32, px: 96 },
+  { maxLetters: 44, px: 84 },
+  { maxLetters: 60, px: 62 },
+  { maxLetters: Number.POSITIVE_INFINITY, px: 46 },
+];
+
+export function titleSize(title: string): number {
+  return TITLE_SIZES.find((size) => title.length <= size.maxLetters)?.px ?? 46;
+}
+
 /** The most-edited files' names, without folders (PRD US-5: shown only if the user opts in). */
 export function topFileNames(events: readonly ReplayEvent[]): string[] {
   const editsPerPath = new Map<string, number>();
