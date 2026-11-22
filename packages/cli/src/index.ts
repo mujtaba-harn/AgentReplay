@@ -1,9 +1,14 @@
+import { fileURLToPath } from "node:url";
 import type { SessionSummary } from "@agentreplay/core";
 import { cancel } from "@clack/prompts";
 import packageJson from "../package.json" with { type: "json" };
 import { type CliOptions, HELP_TEXT, parseCliArgs } from "./args.js";
 import { pickSession } from "./picker.js";
+import { type RunningServer, startServer } from "./server.js";
 import { findSessions, sessionAt } from "./sessions.js";
+
+// The built UI next to this package in the repo; F1.12 bundles it into the published package.
+const WEB_ROOT = fileURLToPath(new URL("../../web/dist", import.meta.url));
 
 function fail(message: string, hint: string): void {
   console.error(`${message}\n${hint}`);
@@ -57,8 +62,31 @@ async function main(argv: readonly string[]): Promise<void> {
   }
   const session = await chooseSession(options);
   if (!session) return;
-  // The server and browser arrive in F1.10–F1.11.
-  console.log(`Picked "${session.title}" (${session.project}). Replay is coming in F1.10–F1.11.`);
+  await serve(session, options.port);
+}
+
+function isPortTaken(error: unknown): boolean {
+  return error instanceof Error && "code" in error && error.code === "EADDRINUSE";
+}
+
+/** Runs the replay server until Ctrl+C. Opening the browser arrives in F1.11. */
+async function serve(session: SessionSummary, port: number | undefined): Promise<void> {
+  let server: RunningServer;
+  try {
+    server = await startServer({ sessions: [session], webRoot: WEB_ROOT, port });
+  } catch (error) {
+    if (!isPortTaken(error)) throw error;
+    fail(
+      `Port ${port} is already in use.`,
+      "Pick another with --port N, or leave it out to use any free port.",
+    );
+    return;
+  }
+  console.log(`Replay of "${session.title}" running at ${server.url}`);
+  console.log("Press Ctrl+C to stop.");
+  process.once("SIGINT", () => {
+    void server.close().then(() => console.log("Stopped."));
+  });
 }
 
 main(process.argv.slice(2)).catch((error: unknown) => {
