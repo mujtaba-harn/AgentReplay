@@ -3,6 +3,7 @@ import { useReducer } from "react";
 import { initialPlayback, playbackReducer } from "../state";
 import { EventTrack } from "./EventTrack";
 import { FilterBar } from "./FilterBar";
+import { StepDetail } from "./StepDetail";
 import { StepList } from "./StepList";
 
 /** The replay itself: owns playback state and hands each part what it needs. */
@@ -23,7 +24,10 @@ export function Replay({ session }: { session: ReplaySession }) {
         filter={state.filter}
         onChange={(filter) => dispatch({ type: "setFilter", filter })}
       />
-      <StepList events={events} index={state.index} filter={state.filter} onJump={jump} />
+      <div className="replay-body">
+        <StepList events={events} index={state.index} filter={state.filter} onJump={jump} />
+        <StepDetail events={events} index={state.index} onJump={jump} />
+      </div>
     </section>
   );
 }
