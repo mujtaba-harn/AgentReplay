@@ -9,8 +9,8 @@ import { type RunningServer, startServer } from "./server.js";
 import { findSessions, sessionAt } from "./sessions.js";
 import { replayUrl, runningSummary } from "./summary.js";
 
-// The built UI next to this package in the repo; F1.12 bundles it into the published package.
-const WEB_ROOT = fileURLToPath(new URL("../../web/dist", import.meta.url));
+// The build copies the web UI next to the bundled CLI (see tsup.config.ts).
+const WEB_ROOT = fileURLToPath(new URL("./web", import.meta.url));
 
 function fail(message: string, hint: string): void {
   console.error(`${message}\n${hint}`);

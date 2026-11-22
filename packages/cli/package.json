@@ -1,7 +1,8 @@
 {
   "name": "agentreplay",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
+  "description": "Replay a Claude Code session in your browser. Data never leaves your computer.",
   "type": "module",
   "engines": {
     "node": ">=22"
@@ -9,17 +10,23 @@
   "bin": {
     "agentreplay": "./dist/index.js"
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup",
     "typecheck": "tsc -p tsconfig.json",
-    "test": "vitest run"
+    "test": "vitest run",
+    "smoke": "node scripts/smoke-packed.ts"
   },
   "dependencies": {
-    "@agentreplay/core": "workspace:*",
     "@clack/prompts": "^1.9.0",
-    "open": "^11.0.4"
+    "open": "^11.0.4",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@agentreplay/core": "workspace:*",
+    "@agentreplay/web": "workspace:*",
     "@types/node": "^22.20.5",
     "tsup": "^9.0.0",
     "typescript": "^7.0.2",
