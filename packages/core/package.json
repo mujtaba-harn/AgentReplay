@@ -13,7 +13,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc -p tsconfig.json",
-    "test": "vitest run",
+    "test": "vitest run --exclude \"test/perf/**\" && vitest run test/perf",
     "fixtures:public": "node test/support/make-public-fixtures.ts"
   },
   "devDependencies": {

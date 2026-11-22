@@ -186,14 +186,15 @@ export interface Adapter {
 
 ## 7. Secret redaction
 
-Runs inside `core` **before** any event leaves `parse()`. The UI never receives raw text.
+Runs inside `core` **before** any event leaves `parse()`. The UI never receives raw text. **Where:** every string of each `user`/`assistant` line is redacted the moment the line is parsed (`redactDeep`), before titles are built — so a key cut off at a 60-char title can never leak as a fragment. Thinking blocks are dropped first (never shown; their signatures look random). Picker titles from `summarize()` are redacted before shortening.
 
-1. **Known patterns** (one table in `redact.ts`): AWS `AKIA…`, GitHub `ghp_/gho_/github_pat_…`, Stripe `sk_live_/rk_live_…`, OpenAI `sk-…`, Anthropic `sk-ant-…`, Slack `xox[abpr]-…`, Google `AIza…`, private key blocks, JWTs, `postgres://user:pass@`, generic `KEY|SECRET|TOKEN|PASSWORD = value`.
-2. **Sensitive files**: content read from `.env*`, `*.pem`, `id_rsa*`, `credentials*` is replaced entirely with `[hidden: sensitive file]`.
-3. **High-entropy strings**: tokens ≥ 32 chars with Shannon entropy > 4.0 → masked.
-4. Mask format keeps a hint: `sk_live_••••••••3f9a`.
-5. Count redactions; surface "We hid N possible secrets" in the UI.
-6. Fixture `test/fixtures/secrets.jsonl` contains every pattern; tests assert none survive.
+1. **Known patterns** (one table in `redact.ts`): AWS `AKIA…`, GitHub `ghp_/gho_/github_pat_…`, Stripe `sk_live_/rk_live_…`, OpenAI `sk-…`, Anthropic `sk-ant-…`, Slack `xox[abpr]-…`, Google `AIza…`, private key blocks, JWTs, `postgres://user:pass@` (password only), generic `KEY|SECRET|TOKEN|PASSWORD = value` (value only).
+   - Generic values are hidden only if 8+ chars, no spaces/brackets, **mixing letters and digits**, and **not name-like** (`habitTracker.v1`, `expense-tracker.budgets`). Code is full of `STORAGE_KEY = "…"` constants that are not secrets.
+2. **Sensitive files**: the diff of an edit/write to `.env*`, `*.pem`, `id_rsa*`, `credentials*` is replaced entirely with `[hidden: sensitive file]`. (Command output such as `cat .env` gets pattern masking only.)
+3. **High-entropy strings**: tokens ≥ 32 chars, mixing letters and digits, with Shannon entropy > 4.0 → masked.
+4. Mask format keeps a hint: `sk_live_••••••••3f9a` (last 4 only for secrets ≥ 16 chars).
+5. Count **distinct** secrets that would have been on screen; surface "We hid N possible secrets" in the UI.
+6. `test/fixtures/08-secrets-fake.jsonl` contains every fake key (as placeholders restored at test time); tests assert none survive, plus 200 random wrappings and a list of ordinary text that must stay untouched. On the 10 secret-free fixtures, 0 strings are hidden.
 
 ## 8. CLI flow
 

@@ -2,6 +2,7 @@ import { createReadStream } from "node:fs";
 import { open } from "node:fs/promises";
 import { basename, dirname } from "node:path";
 import { createInterface } from "node:readline";
+import { redact } from "../../redact.js";
 import type { SessionSummary } from "../../types.js";
 import { costStateSchema, userLineSchema } from "./schema.js";
 import { parseJson, promptText, timestampOf, toTitle } from "./text.js";
@@ -90,8 +91,8 @@ export async function summarize(path: string): Promise<SessionSummary> {
     id: basename(path, LOG_EXTENSION),
     agent: "claude-code",
     path,
-    // TODO(F1.5): pass the title through redact() once it exists.
-    title: head.prompt === undefined ? NO_PROMPT : toTitle(head.prompt),
+    // Redact before shortening, so a key cut at 60 characters can never slip through as a fragment.
+    title: head.prompt === undefined ? NO_PROMPT : toTitle(redact(head.prompt).text),
     project: projectName(head.cwd) ?? basename(dirname(path)),
     startedAt: tail.cost?.startTime ?? head.firstTimestamp ?? tail.modifiedAt,
     durationMs: durationOf(head, tail),

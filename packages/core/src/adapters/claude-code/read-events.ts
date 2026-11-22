@@ -1,7 +1,8 @@
-// Internal: turns a Claude Code log into timeline events. Not exported from core,
-// because text here is not redacted yet — parse() will wrap this once redact() exists (F1.5).
+// Internal: turns a Claude Code log into timeline events. Every user/assistant line is redacted
+// as soon as it is parsed, so no unmasked text reaches an event. parse() (with stats) wraps this.
 import { createReadStream } from "node:fs";
 import { createInterface } from "node:readline";
+import { HIDDEN_FILE, isSensitiveFile, redactDeep } from "../../redact.js";
 import type { ReplayEvent, TokenUsage } from "../../types.js";
 import { diffOf } from "./diff.js";
 import {
@@ -13,6 +14,7 @@ import {
   userLineSchema,
 } from "./schema.js";
 import { parseJson, promptText, timestampOf, toTitle } from "./text.js";
+import { mergeTokens, replyId, tokensOf } from "./tokens.js";
 import {
   KINDS_WITH_OUTPUT,
   relativeFile,
@@ -32,9 +34,13 @@ export interface EventsRead {
   tokensByModel: Record<string, TokenUsage>;
   /** Subagent event id → the subagent's agentId, which names its own log file. */
   subagentIds: Record<string, string>;
+  /** Distinct secrets hidden (a secret repeated across fields counts once). */
+  redactions: number;
 }
 
 interface ReadState extends EventsRead {
+  /** Masks seen so far; their count is `redactions`. */
+  masks: Set<string>;
   /** Replies already added to tokensByModel; their later lines must not count again. */
   countedReplies: Set<string>;
   /** Replies whose tokens already sit on an event; only a reply's first event carries them. */
@@ -44,33 +50,12 @@ interface ReadState extends EventsRead {
 }
 
 const UNKNOWN_MODEL = "unknown";
-const ZERO_TOKENS: TokenUsage = { in: 0, out: 0, cacheRead: 0, cacheWrite: 0 };
-
-function tokensOf(line: AssistantLine): TokenUsage | undefined {
-  const usage = line.message.usage;
-  if (usage === undefined) return undefined;
-  return {
-    in: usage.input_tokens,
-    out: usage.output_tokens,
-    cacheRead: usage.cache_read_input_tokens ?? 0,
-    cacheWrite: usage.cache_creation_input_tokens ?? 0,
-  };
-}
-
-const replyId = (line: AssistantLine): string => line.requestId ?? line.uuid;
 
 function countReplyTokens(state: ReadState, line: AssistantLine): void {
   const tokens = tokensOf(line);
   if (tokens === undefined || state.countedReplies.has(replyId(line))) return;
   state.countedReplies.add(replyId(line));
-  const model = line.message.model ?? UNKNOWN_MODEL;
-  const total = state.tokensByModel[model] ?? ZERO_TOKENS;
-  state.tokensByModel[model] = {
-    in: total.in + tokens.in,
-    out: total.out + tokens.out,
-    cacheRead: total.cacheRead + tokens.cacheRead,
-    cacheWrite: total.cacheWrite + tokens.cacheWrite,
-  };
+  mergeTokens(state.tokensByModel, { [line.message.model ?? UNKNOWN_MODEL]: tokens });
 }
 
 /** Adds model and (for the reply's first event only) tokens, then records the event. */
@@ -150,6 +135,9 @@ function readToolResult(state: ReadState, line: UserLine, block: ContentBlock): 
   if (call.kind === "edit" || call.kind === "write") {
     const diff = diffOf(line.toolUseResult);
     if (diff !== undefined) call.diff = diff;
+    if (call.diff !== undefined && call.file !== undefined && isSensitiveFile(call.file)) {
+      call.diff = { ...call.diff, before: HIDDEN_FILE, after: HIDDEN_FILE };
+    }
   }
   if (call.kind === "subagent") {
     const agent = agentResultSchema.safeParse(line.toolUseResult);
@@ -175,6 +163,27 @@ function readUser(state: ReadState, line: UserLine, lineNumber: number): void {
   });
 }
 
+/**
+ * Thinking blocks are never shown, and their long scrambled `signature` would otherwise be
+ * scanned (slow) and mistaken for secrets.
+ */
+function withoutThinking(json: object): object {
+  if (!("message" in json) || typeof json.message !== "object" || json.message === null)
+    return json;
+  const message = json.message;
+  if (!("content" in message) || !Array.isArray(message.content)) return json;
+  const content: unknown[] = message.content.filter(
+    (block: unknown) =>
+      !(
+        typeof block === "object" &&
+        block !== null &&
+        "type" in block &&
+        block.type === "thinking"
+      ),
+  );
+  return { ...json, message: { ...message, content } };
+}
+
 function readLine(state: ReadState, raw: string, lineNumber: number): void {
   if (raw.trim() === "") return;
   const json = parseJson(raw);
@@ -183,14 +192,18 @@ function readLine(state: ReadState, raw: string, lineNumber: number): void {
     return;
   }
   state.origin ??= timestampOf(json);
-  const type = typeof json === "object" && json !== null && "type" in json ? json.type : undefined;
+  if (typeof json !== "object" || json === null) return;
+  const type = "type" in json ? json.type : undefined;
+  if (type !== "user" && type !== "assistant") return;
+  // Mask secrets in every string before anything is built from the line (F1.5).
+  const safe = redactDeep(withoutThinking(json), (mask) => state.masks.add(mask));
   if (type === "user") {
-    const user = userLineSchema.safeParse(json);
+    const user = userLineSchema.safeParse(safe);
     if (user.success) readUser(state, user.data, lineNumber);
     else state.skippedLines++;
   }
   if (type === "assistant") {
-    const assistant = assistantLineSchema.safeParse(json);
+    const assistant = assistantLineSchema.safeParse(safe);
     if (assistant.success) readAssistant(state, assistant.data);
     else state.skippedLines++;
   }
@@ -203,6 +216,8 @@ export async function readEvents(path: string): Promise<EventsRead> {
     origin: undefined,
     tokensByModel: {},
     subagentIds: {},
+    redactions: 0,
+    masks: new Set(),
     countedReplies: new Set(),
     attachedReplies: new Set(),
     pendingTools: new Map(),
@@ -216,6 +231,8 @@ export async function readEvents(path: string): Promise<EventsRead> {
     lineNumber++;
     readLine(state, raw, lineNumber);
   }
-  const { countedReplies: _c, attachedReplies: _a, pendingTools: _p, ...result } = state;
-  return result;
+  const { countedReplies: _c, attachedReplies: _a, pendingTools: _p, masks, ...result } = state;
+  // Count only secrets that would have been on screen, not ones in fields we never show.
+  const shown = JSON.stringify(result.events);
+  return { ...result, redactions: [...masks].filter((mask) => shown.includes(mask)).length };
 }

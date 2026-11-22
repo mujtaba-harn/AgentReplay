@@ -55,23 +55,6 @@ describe("summarize on real fixtures", () => {
       durationMs,
     });
   });
-
-  it("summarizes 200 sessions in under 1 second", async () => {
-    const paths = Array.from({ length: 200 }, (_, i) =>
-      join(FIXTURES, EXPECTED[i % 11]?.[0] ?? ""),
-    );
-    const timeAll = async (): Promise<number> => {
-      const started = performance.now();
-      for (let i = 0; i < paths.length; i += 8) {
-        await Promise.all(paths.slice(i, i + 8).map(summarize));
-      }
-      return performance.now() - started;
-    };
-    // Other test files run in parallel; the fastest of 3 rounds measures our code, not their load.
-    const fastest = Math.min(await timeAll(), await timeAll(), await timeAll());
-
-    expect(fastest).toBeLessThan(1000);
-  });
 });
 
 describe("summarize on unusual files", () => {

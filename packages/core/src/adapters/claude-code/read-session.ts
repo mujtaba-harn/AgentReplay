@@ -2,8 +2,9 @@
 // step with an activity summary (decision 4d "C"); its steps stay hidden but still count in stats.
 import { access } from "node:fs/promises";
 import { basename, dirname, join } from "node:path";
-import type { EventKind, ReplayEvent, TokenUsage } from "../../types.js";
+import type { EventKind, ReplayEvent } from "../../types.js";
 import { type EventsRead, readEvents } from "./read-events.js";
+import { mergeTokens } from "./tokens.js";
 
 export interface SessionRead extends Omit<EventsRead, "subagentIds"> {
   /** Every subagent step, for stats only; not on the timeline. */
@@ -47,18 +48,6 @@ export function describeActivity(events: readonly ReplayEvent[]): string {
   return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
-function mergeTokens(into: Record<string, TokenUsage>, from: Record<string, TokenUsage>): void {
-  for (const [model, t] of Object.entries(from)) {
-    const total = into[model] ?? { in: 0, out: 0, cacheRead: 0, cacheWrite: 0 };
-    into[model] = {
-      in: total.in + t.in,
-      out: total.out + t.out,
-      cacheRead: total.cacheRead + t.cacheRead,
-      cacheWrite: total.cacheWrite + t.cacheWrite,
-    };
-  }
-}
-
 export async function readSession(
   path: string,
   findSubagent: SubagentFinder = subagentFinder(path),
@@ -75,6 +64,7 @@ export async function readSession(
     event.output = `${describeActivity(sub.events)}${report}`;
     session.subagentEvents.push(...sub.events);
     session.skippedLines += sub.skippedLines;
+    session.redactions += sub.redactions;
     mergeTokens(session.tokensByModel, sub.tokensByModel);
   }
   return session;
