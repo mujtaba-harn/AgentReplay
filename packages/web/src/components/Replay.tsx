@@ -2,6 +2,7 @@ import type { ReplaySession } from "@agentreplay/core";
 import { useReducer } from "react";
 import { usePlaybackKeys, usePlaybackTimer } from "../playback-hooks";
 import { initialPlayback, playbackReducer } from "../state";
+import { CardView } from "./CardView";
 import { Controls } from "./Controls";
 import { EventTrack } from "./EventTrack";
 import { FilterBar } from "./FilterBar";
@@ -12,7 +13,10 @@ import { StepList } from "./StepList";
 export function Replay({ session }: { session: ReplaySession }) {
   const [state, dispatch] = useReducer(playbackReducer, session, initialPlayback);
   usePlaybackTimer(state, dispatch);
-  usePlaybackKeys(dispatch);
+  usePlaybackKeys(dispatch, !state.cardOpen);
+  if (state.cardOpen) {
+    return <CardView session={session} onClose={() => dispatch({ type: "closeCard" })} />;
+  }
   const { events } = session;
   const current = events[state.index];
   const jump = (index: number) => dispatch({ type: "jump", index });
@@ -24,11 +28,20 @@ export function Replay({ session }: { session: ReplaySession }) {
         Step {state.index + 1} of {events.length}
         {current && <span className="current-title"> · {current.title}</span>}
       </p>
-      <FilterBar
-        events={events}
-        filter={state.filter}
-        onChange={(filter) => dispatch({ type: "setFilter", filter })}
-      />
+      <div className="replay-toolbar">
+        <FilterBar
+          events={events}
+          filter={state.filter}
+          onChange={(filter) => dispatch({ type: "setFilter", filter })}
+        />
+        <button
+          type="button"
+          className="card-button"
+          onClick={() => dispatch({ type: "openCard" })}
+        >
+          Recap card
+        </button>
+      </div>
       <div className="replay-body">
         <StepList events={events} index={state.index} filter={state.filter} onJump={jump} />
         <StepDetail events={events} index={state.index} onJump={jump} />

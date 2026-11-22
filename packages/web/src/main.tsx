@@ -8,6 +8,7 @@ import "./styles/list.css";
 import "./styles/detail.css";
 import "./styles/controls.css";
 import "./styles/stats.css";
+import "./styles/card.css";
 
 const root = document.getElementById("root");
 if (!root) throw new Error("Missing #root element in index.html");

@@ -119,6 +119,13 @@ describe("playbackReducer", () => {
     expect(playbackReducer(at(6), { type: "setFilter", filter: "errors" }).index).toBe(4);
   });
 
+  it("opens the recap card, pausing playback, and closes it again", () => {
+    const open = playbackReducer(at(2, { playing: true }), { type: "openCard" });
+
+    expect(open).toMatchObject({ cardOpen: true, playing: false, index: 2 });
+    expect(playbackReducer(open, { type: "closeCard" }).cardOpen).toBe(false);
+  });
+
   it("keeps the step and pauses when the filter shows nothing", () => {
     const noErrors = {
       ...session,

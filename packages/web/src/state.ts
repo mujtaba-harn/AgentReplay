@@ -11,6 +11,8 @@ export interface PlaybackState {
   playing: boolean;
   speed: Speed;
   filter: Filter;
+  /** The recap card is shown instead of the replay. */
+  cardOpen: boolean;
 }
 
 export type PlaybackAction =
@@ -22,7 +24,9 @@ export type PlaybackAction =
   | { type: "tick" }
   | { type: "jump"; index: number }
   | { type: "setSpeed"; speed: Speed }
-  | { type: "setFilter"; filter: Filter };
+  | { type: "setFilter"; filter: Filter }
+  | { type: "openCard" }
+  | { type: "closeCard" };
 
 /** PRD US-2 filters: All · Edits · Commands · Errors. "all" has no entry: it shows everything. */
 const FILTER_KINDS: Readonly<Record<Exclude<Filter, "all">, readonly EventKind[]>> = {
@@ -54,7 +58,7 @@ export function visibleIndexes(events: readonly ReplayEvent[], filter: Filter): 
 }
 
 export function initialPlayback(session: ReplaySession): PlaybackState {
-  return { session, index: 0, playing: false, speed: 1, filter: "all" };
+  return { session, index: 0, playing: false, speed: 1, filter: "all", cardOpen: false };
 }
 
 /** The nearest visible index from `from` in `direction`, or undefined if there is none. */
@@ -118,6 +122,10 @@ export function playbackReducer(state: PlaybackState, action: PlaybackAction): P
       return { ...state, speed: action.speed };
     case "setFilter":
       return setFilter(state, action.filter);
+    case "openCard":
+      return { ...state, cardOpen: true, playing: false };
+    case "closeCard":
+      return { ...state, cardOpen: false };
   }
 }
 

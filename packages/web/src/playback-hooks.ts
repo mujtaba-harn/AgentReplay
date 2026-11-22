@@ -32,9 +32,10 @@ function keyBelongsToTarget(key: string, target: EventTarget | null): boolean {
   return key === " " && target.matches("button");
 }
 
-/** PRD US-2: ← / → step, Space plays and pauses. */
-export function usePlaybackKeys(dispatch: Dispatch<PlaybackAction>): void {
+/** PRD US-2: ← / → step, Space plays and pauses. Off while something else (the card) is shown. */
+export function usePlaybackKeys(dispatch: Dispatch<PlaybackAction>, enabled: boolean): void {
   useEffect(() => {
+    if (!enabled) return;
     const onKey = (event: KeyboardEvent) => {
       const action = KEY_ACTIONS[event.key];
       if (!action || event.altKey || event.ctrlKey || event.metaKey) return;
@@ -44,5 +45,5 @@ export function usePlaybackKeys(dispatch: Dispatch<PlaybackAction>): void {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [dispatch]);
+  }, [dispatch, enabled]);
 }
