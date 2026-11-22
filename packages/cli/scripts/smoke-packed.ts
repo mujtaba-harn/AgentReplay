@@ -1,7 +1,15 @@
 // F1.12 check: pack the CLI, install the tarball into an empty folder (like `npx` on a fresh
 // machine), and run a real replay from it. Run with `pnpm --filter agentreplay smoke` after a build.
 import { type ChildProcess, spawn, spawnSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { stripVTControlCharacters } from "node:util";
@@ -69,6 +77,9 @@ async function main(): Promise<void> {
     run("npm", ["install", join(work, tarball), "--no-audit", "--no-fund"], app);
 
     const installed = join(app, "node_modules", "agentreplay");
+    for (const doc of ["README.md", "LICENSE"]) {
+      if (!existsSync(join(installed, doc))) throw new Error(`The package is missing ${doc}.`);
+    }
     const size = folderSize(installed);
     if (size > MAX_UNPACKED_BYTES) throw new Error(`Package is ${size} bytes, over 5 MB.`);
     const entry = join(installed, "dist", "index.js");

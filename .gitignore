@@ -15,5 +15,9 @@ Thumbs.db
 .env.*
 .claude/settings.local.json
 
+# Copied from the repo root when the CLI is packed (packages/cli/scripts/copy-docs.ts)
+packages/cli/README.md
+packages/cli/LICENSE
+
 # Full Claude Code logs: local only, never committed (see packages/core/test/fixtures/README.md)
 packages/core/test/fixtures-private/

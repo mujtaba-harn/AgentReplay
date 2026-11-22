@@ -3,6 +3,20 @@
   "version": "0.1.0",
   "private": true,
   "description": "Replay a Claude Code session in your browser. Data never leaves your computer.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mujtaba-harn/AgentReplay.git"
+  },
+  "homepage": "https://github.com/mujtaba-harn/AgentReplay#readme",
+  "bugs": "https://github.com/mujtaba-harn/AgentReplay/issues",
+  "keywords": [
+    "claude-code",
+    "replay",
+    "timeline",
+    "ai-agent",
+    "cli"
+  ],
   "type": "module",
   "engines": {
     "node": ">=22"
@@ -17,7 +31,8 @@
     "build": "tsup",
     "typecheck": "tsc -p tsconfig.json",
     "test": "vitest run",
-    "smoke": "node scripts/smoke-packed.ts"
+    "smoke": "node scripts/smoke-packed.ts",
+    "prepack": "node scripts/copy-docs.ts"
   },
   "dependencies": {
     "@clack/prompts": "^1.9.0",
