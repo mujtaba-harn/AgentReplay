@@ -12,6 +12,11 @@ export interface ServerOptions {
   port?: number | undefined;
   /** Swappable for tests; defaults to core's parse(). */
   load?: (path: string) => Promise<ReplaySession>;
+  /**
+   * `--card` only: the card page reports it has finished, so the CLI can exit. Without it the
+   * route does not exist. It carries one yes/no and cannot read or write anything.
+   */
+  onCardDone?: (saved: boolean) => void;
 }
 
 export interface RunningServer {
@@ -34,7 +39,7 @@ const SAFETY_HEADERS: Readonly<Record<string, string>> = {
     "default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; frame-ancestors 'none'",
 };
 
-type Route = (pathname: string) => Promise<Reply>;
+type Route = (url: URL) => Promise<Reply>;
 
 interface Reply {
   status: number;
@@ -73,8 +78,12 @@ function routes(options: ServerOptions): Route {
     return cached;
   };
 
-  return async (pathname) => {
+  return async ({ pathname, searchParams }) => {
     if (pathname === "/api/sessions") return json(200, options.sessions);
+    if (pathname === "/api/card-done" && options.onCardDone) {
+      options.onCardDone(searchParams.get("saved") === "1");
+      return json(200, { ok: true });
+    }
     const match = SESSION_ROUTE.exec(pathname);
     const summary = match?.[1] === undefined ? undefined : byId.get(match[1]);
     if (summary) return json(200, await replayOf(summary));
@@ -88,7 +97,7 @@ async function reply(req: IncomingMessage, route: Route, port: number): Promise<
   if (!isAllowedHost(req.headers.host, port)) return text(403, "Forbidden host.");
   if (req.method !== "GET" && req.method !== "HEAD") return text(405, "Only GET is allowed.");
   try {
-    return await route(new URL(req.url ?? "/", `http://${LOOPBACK}`).pathname);
+    return await route(new URL(req.url ?? "/", `http://${LOOPBACK}`));
   } catch {
     // Deliberately no details: an error message could quote log text.
     return json(500, { error: "This session could not be read." });
@@ -114,7 +123,9 @@ export function startServer(options: ServerOptions): Promise<RunningServer> {
   const close = (): Promise<void> =>
     new Promise((done) => {
       server.close(() => done());
-      server.closeAllConnections(); // keep-alive browser connections would otherwise hold it open
+      // Idle keep-alive browser connections would hold the server open; a request still being
+      // answered (the card page's "done") is allowed to finish first.
+      server.closeIdleConnections();
     });
   return new Promise((resolvePromise, reject) => {
     server.once("error", reject);

@@ -17,12 +17,18 @@
   gap: 24px;
 }
 
-.card-editor {
+.card-side {
   display: flex;
   flex: 1 1 260px;
   flex-direction: column;
   gap: 16px;
   max-width: 360px;
+}
+
+.card-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .editor-field {
@@ -84,4 +90,29 @@
 
 .card-themes legend {
   width: 100%;
+}
+
+.card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.card-actions .card-button {
+  margin: 0;
+}
+
+.card-actions .card-button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.card-status {
+  min-height: 1.5em;
+  margin: 0;
+  color: var(--muted);
+}
+
+.card-status.is-failed {
+  color: var(--problem);
 }

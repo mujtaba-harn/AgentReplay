@@ -151,10 +151,41 @@ describe("startServer", () => {
     expect(headers["access-control-allow-origin"]).toBeUndefined();
   });
 
+  it("has no card-done route outside --card", async () => {
+    expect((await get("/api/card-done?saved=1")).status).toBe(404);
+  });
+
   it("fails to start on a port that is already taken", async () => {
     await expect(startServer({ sessions: [], webRoot, port: server.port })).rejects.toMatchObject({
       code: "EADDRINUSE",
     });
+  });
+});
+
+describe("a --card server", () => {
+  const ask = (port: number, path: string) =>
+    new Promise<number>((resolve, reject) => {
+      request({ port, host: "127.0.0.1", path }, (r) => {
+        r.resume();
+        resolve(r.statusCode ?? 0);
+      })
+        .on("error", reject)
+        .end();
+    });
+
+  it.each([
+    ["/api/card-done?saved=1", true],
+    ["/api/card-done?saved=0", false],
+    ["/api/card-done", false],
+  ])("reports %s as saved=%s", async (path, saved) => {
+    const reports: boolean[] = [];
+    const card = await startServer({ sessions: [], webRoot, onCardDone: (s) => reports.push(s) });
+    try {
+      expect(await ask(card.port, path)).toBe(200);
+      expect(reports).toEqual([saved]);
+    } finally {
+      await card.close();
+    }
   });
 });
 

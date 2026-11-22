@@ -25,7 +25,7 @@ Replay a Claude Code session in your browser.
 Options:
   --latest        Open the most recent session, skip the picker
   --path FILE     Open this session log instead of picking one
-  --card          Export a recap card PNG for the session and exit
+  --card          Save a recap card PNG of the latest session (or --path) and exit
   --port N        Serve on port N (default: any free port)
   --no-open       Don't open the browser; just print the address
   -h, --help      Show this help

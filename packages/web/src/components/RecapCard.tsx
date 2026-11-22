@@ -2,7 +2,7 @@
 // contents, and file names only when the user turns them on.
 import type { ReplaySession } from "@agentreplay/core";
 import { formatDuration } from "@agentreplay/core/format";
-import { useMemo } from "react";
+import { type Ref, useMemo } from "react";
 import {
   type BarKind,
   type CardStatId,
@@ -54,9 +54,11 @@ export const defaultCardOptions = (): CardOptions => ({
 interface RecapCardProps {
   session: ReplaySession;
   options: CardOptions;
+  /** The card's root, which the PNG export draws. */
+  ref?: Ref<HTMLDivElement>;
 }
 
-export function RecapCard({ session, options }: RecapCardProps) {
+export function RecapCard({ session, options, ref }: RecapCardProps) {
   const { theme } = options;
   const bars = useMemo(() => stripBars(session.events), [session.events]);
   const files = useMemo(() => topFileNames(session.events), [session.events]);
@@ -68,7 +70,7 @@ export function RecapCard({ session, options }: RecapCardProps) {
   const steps = session.events.length;
   const title = options.title.trim() || session.title;
   return (
-    <div className={`recap-card card-${theme}`}>
+    <div ref={ref} className={`recap-card card-${theme}`}>
       <div className="card-top">
         <span className="card-agent">Claude Code</span>
         <span>{formatDuration(session.stats.durationMs)}</span>

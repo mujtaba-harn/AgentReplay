@@ -10,6 +10,11 @@ type Fetcher = (url: string) => Promise<Response>;
 
 const PROBLEM_BY_STATUS: Readonly<Record<number, Problem>> = { 404: "notFound", 500: "unreadable" };
 
+/** `--card`: lets the CLI finish. If it has already stopped there is nobody left to tell. */
+export function reportCardDone(saved: boolean): void {
+  fetch(`/api/card-done?saved=${saved ? 1 : 0}`).catch(() => undefined);
+}
+
 /** The CLI opens `/?session=<id>`. */
 export function sessionIdFrom(search: string): string | undefined {
   const id = new URLSearchParams(search).get("session");

@@ -1,7 +1,13 @@
 import { stripVTControlCharacters } from "node:util";
 import type { SessionSummary } from "@agentreplay/core";
 import { describe, expect, it } from "vitest";
-import { replayUrl, runningSummary } from "../src/summary.js";
+import {
+  cardDoneMessage,
+  cardSummary,
+  cardUrl,
+  replayUrl,
+  runningSummary,
+} from "../src/summary.js";
 
 const NOW = new Date(2026, 10, 23, 12, 0).getTime();
 const session: SessionSummary = {
@@ -51,5 +57,27 @@ describe("runningSummary", () => {
 
   it("never prints the log's file path", () => {
     expect(plain(runningSummary(session, url, "opened", NOW))).not.toContain("someone");
+  });
+});
+
+describe("--card output", () => {
+  it("opens the card-only page", () => {
+    expect(cardUrl("http://127.0.0.1:4317", "abc-123")).toBe(
+      "http://127.0.0.1:4317/?session=abc-123&card=1",
+    );
+  });
+
+  it("says where the card will go and keeps the privacy line", () => {
+    const text = plain(cardSummary(session, "http://x", "opened", NOW));
+
+    expect(text).toContain("Fix the login bug");
+    expect(text).toContain("saves it to its Downloads folder");
+    expect(text).toContain("Data never leaves your computer.");
+    expect(text).not.toContain("someone");
+  });
+
+  it("reports success and failure in plain words", () => {
+    expect(cardDoneMessage(true)).toBe("Your recap card is in your browser's Downloads folder.");
+    expect(cardDoneMessage(false)).toContain("use Download PNG instead");
   });
 });
