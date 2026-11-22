@@ -36,6 +36,8 @@ const usageSchema = z.object({
   output_tokens: z.number(),
   cache_read_input_tokens: z.number().optional(),
   cache_creation_input_tokens: z.number().optional(),
+  /** Splits cache writes by lifetime; 5-minute writes are cheaper than 1-hour ones. */
+  cache_creation: z.object({ ephemeral_5m_input_tokens: z.number().optional() }).optional(),
 });
 
 // One API reply is written as several lines (one content block each) sharing a requestId,

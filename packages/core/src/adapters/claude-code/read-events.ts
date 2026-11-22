@@ -14,7 +14,7 @@ import {
   userLineSchema,
 } from "./schema.js";
 import { parseJson, promptText, timestampOf, toTitle } from "./text.js";
-import { mergeTokens, replyId, tokensOf } from "./tokens.js";
+import { mergeTokens, replyId, shortCacheWritesOf, tokensOf } from "./tokens.js";
 import {
   KINDS_WITH_OUTPUT,
   relativeFile,
@@ -32,6 +32,8 @@ export interface EventsRead {
   origin: number | undefined;
   /** Counted once per API reply, keyed by model id. */
   tokensByModel: Record<string, TokenUsage>;
+  /** Cache writes per model that used the cheaper 5-minute lifetime (for cost estimates). */
+  shortCacheWritesByModel: Record<string, number>;
   /** Subagent event id → the subagent's agentId, which names its own log file. */
   subagentIds: Record<string, string>;
   /** Distinct secrets hidden (a secret repeated across fields counts once). */
@@ -55,7 +57,10 @@ function countReplyTokens(state: ReadState, line: AssistantLine): void {
   const tokens = tokensOf(line);
   if (tokens === undefined || state.countedReplies.has(replyId(line))) return;
   state.countedReplies.add(replyId(line));
-  mergeTokens(state.tokensByModel, { [line.message.model ?? UNKNOWN_MODEL]: tokens });
+  const model = line.message.model ?? UNKNOWN_MODEL;
+  mergeTokens(state.tokensByModel, { [model]: tokens });
+  state.shortCacheWritesByModel[model] =
+    (state.shortCacheWritesByModel[model] ?? 0) + shortCacheWritesOf(line);
 }
 
 /** Adds model and (for the reply's first event only) tokens, then records the event. */
@@ -215,6 +220,7 @@ export async function readEvents(path: string): Promise<EventsRead> {
     skippedLines: 0,
     origin: undefined,
     tokensByModel: {},
+    shortCacheWritesByModel: {},
     subagentIds: {},
     redactions: 0,
     masks: new Set(),

@@ -66,6 +66,9 @@ export async function readSession(
     session.skippedLines += sub.skippedLines;
     session.redactions += sub.redactions;
     mergeTokens(session.tokensByModel, sub.tokensByModel);
+    for (const [model, n] of Object.entries(sub.shortCacheWritesByModel)) {
+      session.shortCacheWritesByModel[model] = (session.shortCacheWritesByModel[model] ?? 0) + n;
+    }
   }
   return session;
 }

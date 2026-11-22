@@ -33,5 +33,10 @@ export function tokensOf(line: AssistantLine): TokenUsage | undefined {
   };
 }
 
+/** The part of a reply's cache writes that used the cheaper 5-minute lifetime. */
+export function shortCacheWritesOf(line: AssistantLine): number {
+  return line.message.usage?.cache_creation?.ephemeral_5m_input_tokens ?? 0;
+}
+
 /** One API reply spans several lines sharing a requestId (see schema.ts). */
 export const replyId = (line: AssistantLine): string => line.requestId ?? line.uuid;
