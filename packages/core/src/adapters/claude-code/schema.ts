@@ -59,6 +59,7 @@ export const costStateSchema = z.object({
   type: z.literal("cost-state"),
   startTime: z.number(),
   totalDuration: z.number(),
+  totalCostUSD: z.number().optional(),
 });
 
 export const timestampedLineSchema = z.object({ timestamp: z.iso.datetime() });

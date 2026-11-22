@@ -19,7 +19,7 @@ interface Head {
 }
 
 interface Tail {
-  cost?: { startTime: number; totalDuration: number };
+  cost?: { startTime: number; totalDuration: number; totalCostUSD?: number | undefined };
   lastTimestamp?: number;
   modifiedAt: number;
 }
@@ -84,10 +84,16 @@ function durationOf(head: Head, tail: Tail): number {
   return Math.max(0, tail.lastTimestamp - head.firstTimestamp);
 }
 
-/** Picker-level facts about one session, reading only its first prompt and its last lines. */
-export async function summarize(path: string): Promise<SessionSummary> {
+export interface SummaryFacts {
+  summary: SessionSummary;
+  /** Claude Code's own total cost from the final cost-state line, if the session finished. */
+  exactCostUsd: number | undefined;
+}
+
+/** The summary plus the exact cost, which parse() needs and reads from the same file tail. */
+export async function summaryFacts(path: string): Promise<SummaryFacts> {
   const [head, tail] = await Promise.all([readHead(path), readTail(path)]);
-  return {
+  const summary: SessionSummary = {
     id: basename(path, LOG_EXTENSION),
     agent: "claude-code",
     path,
@@ -97,4 +103,10 @@ export async function summarize(path: string): Promise<SessionSummary> {
     startedAt: tail.cost?.startTime ?? head.firstTimestamp ?? tail.modifiedAt,
     durationMs: durationOf(head, tail),
   };
+  return { summary, exactCostUsd: tail.cost?.totalCostUSD };
+}
+
+/** Picker-level facts about one session, reading only its first prompt and its last lines. */
+export async function summarize(path: string): Promise<SessionSummary> {
+  return (await summaryFacts(path)).summary;
 }
