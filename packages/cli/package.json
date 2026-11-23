@@ -1,7 +1,6 @@
 {
   "name": "agentreplay",
   "version": "0.1.0",
-  "private": true,
   "description": "Replay a Claude Code session in your browser. Data never leaves your computer.",
   "license": "MIT",
   "repository": {
@@ -18,6 +17,10 @@
     "cli"
   ],
   "type": "module",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "engines": {
     "node": ">=22"
   },

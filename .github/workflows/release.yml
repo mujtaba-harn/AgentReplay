@@ -1,0 +1,52 @@
+name: Release
+
+# Publishes the CLI to npm when a version tag (e.g. v0.1.0) is pushed. See docs/RELEASING.md.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+  # Lets npm prove the package was built here (provenance), and enables npm trusted publishing.
+  id-token: write
+
+jobs:
+  publish:
+    name: Publish to npm
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          # Node 24 ships npm 11, which supports provenance and trusted publishing.
+          node-version: 24
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm check
+      - run: pnpm test
+      - run: pnpm build
+      - name: Smoke-test the packed CLI
+        run: pnpm --filter agentreplay smoke
+
+      - name: Check the tag matches the package version
+        run: |
+          VERSION=$(node -p "require('./packages/cli/package.json').version")
+          if [ "v$VERSION" != "$GITHUB_REF_NAME" ]; then
+            echo "Tag $GITHUB_REF_NAME does not match package version $VERSION." >&2
+            exit 1
+          fi
+
+      # pnpm packs (it copies README/LICENSE in and resolves workspace links); npm publishes,
+      # because npm is what records provenance.
+      - name: Pack
+        run: pnpm --filter agentreplay pack --pack-destination "$RUNNER_TEMP"
+
+      - name: Publish
+        run: npm publish "$RUNNER_TEMP"/agentreplay-*.tgz --access public --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
