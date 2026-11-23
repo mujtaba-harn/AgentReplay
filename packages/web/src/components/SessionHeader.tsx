@@ -1,9 +1,9 @@
-import type { ReplaySession } from "@agentreplay/core";
+import type { SharedSession } from "@agentreplay/core";
 import { formatDuration } from "@agentreplay/core/format";
 
 const steps = (count: number): string => (count === 1 ? "1 step" : `${count} steps`);
 
-export function SessionHeader({ session }: { session: ReplaySession }) {
+export function SessionHeader({ session }: { session: SharedSession }) {
   const details = [
     session.project,
     formatDuration(session.stats.durationMs),

@@ -1,10 +1,10 @@
 // Talks to the local AgentReplay server (ARCHITECTURE.md §8). Every failure becomes a named
 // problem, so the UI can always show a sentence and a next step instead of a blank page.
-import type { ReplaySession } from "@agentreplay/core";
+import type { SharedSession } from "@agentreplay/core";
 
 export type Problem = "noSession" | "unreachable" | "notFound" | "unreadable" | "unexpected";
 
-export type LoadResult = { ok: true; session: ReplaySession } | { ok: false; problem: Problem };
+export type LoadResult = { ok: true; session: SharedSession } | { ok: false; problem: Problem };
 
 type Fetcher = (url: string) => Promise<Response>;
 
@@ -22,7 +22,7 @@ export function sessionIdFrom(search: string): string | undefined {
 }
 
 /** A cheap shape check at the boundary; the server builds this data from core's own types. */
-function isReplaySession(value: unknown): value is ReplaySession {
+function isSharedSession(value: unknown): value is SharedSession {
   if (typeof value !== "object" || value === null) return false;
   const candidate = value as Record<string, unknown>;
   return (
@@ -52,5 +52,5 @@ export async function loadReplay(id: string, fetcher: Fetcher = fetch): Promise<
     return { ok: false, problem: PROBLEM_BY_STATUS[response.status] ?? "unexpected" };
   }
   const body = await bodyOf(response);
-  return isReplaySession(body) ? { ok: true, session: body } : { ok: false, problem: "unexpected" };
+  return isSharedSession(body) ? { ok: true, session: body } : { ok: false, problem: "unexpected" };
 }

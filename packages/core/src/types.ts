@@ -71,3 +71,10 @@ export interface ReplaySession extends SessionSummary {
   stats: SessionStats;
   warnings: { skippedLines: number; redactions: number };
 }
+
+/**
+ * What the browser receives (and, in Phase 2, what a share link uploads): no local file path,
+ * which would reveal the OS user name. Only the CLI needs `path`.
+ */
+export type SharedSummary = Omit<SessionSummary, "path">;
+export type SharedSession = Omit<ReplaySession, "path">;

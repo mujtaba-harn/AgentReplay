@@ -16,5 +16,7 @@ export type {
   ReplaySession,
   SessionStats,
   SessionSummary,
+  SharedSession,
+  SharedSummary,
   TokenUsage,
 } from "./types.js";

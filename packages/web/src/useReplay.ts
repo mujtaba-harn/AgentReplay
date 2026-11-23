@@ -1,11 +1,11 @@
-import type { ReplaySession } from "@agentreplay/core";
+import type { SharedSession } from "@agentreplay/core";
 import { useEffect, useState } from "react";
 import { loadReplay, type Problem, sessionIdFrom } from "./api";
 
 export type ReplayState =
   | { status: "loading" }
   | { status: "failed"; problem: Problem }
-  | { status: "ready"; session: ReplaySession };
+  | { status: "ready"; session: SharedSession };
 
 /** Loads the session named in the page address, once. */
 export function useReplay(search: string): ReplayState {

@@ -1,11 +1,11 @@
-import type { ReplaySession } from "@agentreplay/core";
+import type { SharedSession } from "@agentreplay/core";
 import { useRef, useState } from "react";
 import { copyCard, downloadCard } from "../export";
 import { CardEditor } from "./CardEditor";
 import { type CardOptions, defaultCardOptions, RecapCard } from "./RecapCard";
 
 interface CardViewProps {
-  session: ReplaySession;
+  session: SharedSession;
   onClose: () => void;
 }
 

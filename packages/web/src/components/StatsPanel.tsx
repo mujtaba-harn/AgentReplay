@@ -1,5 +1,5 @@
 // PRD US-4 stats and the US-6 privacy notice. Every number comes from core's stats.ts as-is.
-import type { ReplaySession, SessionStats } from "@agentreplay/core";
+import type { SessionStats, SharedSession } from "@agentreplay/core";
 import { formatDuration } from "@agentreplay/core/format";
 import { formatCost, formatCount } from "../format";
 
@@ -20,7 +20,7 @@ const TILES: readonly { label: string; value: (stats: SessionStats) => string }[
   { label: "Cost", value: (s) => `${formatCost(s.costUsd)} ${s.costSource}` },
 ];
 
-export function StatsPanel({ session }: { session: ReplaySession }) {
+export function StatsPanel({ session }: { session: SharedSession }) {
   const { stats, warnings } = session;
   return (
     <section className="stats" aria-label="Session stats">

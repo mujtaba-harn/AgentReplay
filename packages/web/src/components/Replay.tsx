@@ -1,4 +1,4 @@
-import type { ReplaySession } from "@agentreplay/core";
+import type { SharedSession } from "@agentreplay/core";
 import { useReducer } from "react";
 import { usePlaybackKeys, usePlaybackTimer } from "../playback-hooks";
 import { initialPlayback, playbackReducer } from "../state";
@@ -10,7 +10,7 @@ import { StepDetail } from "./StepDetail";
 import { StepList } from "./StepList";
 
 /** The replay itself: owns playback state and hands each part what it needs. */
-export function Replay({ session }: { session: ReplaySession }) {
+export function Replay({ session }: { session: SharedSession }) {
   const [state, dispatch] = useReducer(playbackReducer, session, initialPlayback);
   usePlaybackTimer(state, dispatch);
   usePlaybackKeys(dispatch, !state.cardOpen);

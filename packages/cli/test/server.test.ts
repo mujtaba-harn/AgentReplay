@@ -92,6 +92,18 @@ describe("startServer", () => {
     expect(replay.events.length).toBeGreaterThan(0);
   });
 
+  // The path holds the OS user name (C:\Users\<name>\...) and the browser never needs it.
+  it("never sends the log's file path to the browser", async () => {
+    const list = JSON.parse((await get("/api/sessions")).body) as Record<string, unknown>[];
+    const replay = (await get(`/api/sessions/${sessionId}`)).body;
+
+    expect(list[0]).not.toHaveProperty("path");
+    expect(JSON.parse(replay)).not.toHaveProperty("path");
+    for (const body of [JSON.stringify(list), replay]) {
+      expect(body).not.toContain(JSON.stringify(FIXTURE).slice(1, -1));
+    }
+  });
+
   it.each(["/api/sessions/nope", "/api/sessions/..%2F..%2Fsecret", "/api/other"])(
     "answers 404 for %s",
     async (path) => {

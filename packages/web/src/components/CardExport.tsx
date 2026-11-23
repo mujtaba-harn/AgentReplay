@@ -1,5 +1,5 @@
 // `npx agentreplay --card` opens this page: it draws the card, downloads it and tells the CLI.
-import type { ReplaySession } from "@agentreplay/core";
+import type { SharedSession } from "@agentreplay/core";
 import { useEffect, useRef, useState } from "react";
 import { reportCardDone } from "../api";
 import { downloadCard } from "../export";
@@ -8,7 +8,7 @@ import { defaultCardOptions, RecapCard } from "./RecapCard";
 
 type Outcome = { saved: true; file: string } | { saved: false; reason: string };
 
-export function CardExport({ session }: { session: ReplaySession }) {
+export function CardExport({ session }: { session: SharedSession }) {
   const card = useRef<HTMLDivElement>(null);
   const started = useRef(false); // React StrictMode runs effects twice in development
   const [outcome, setOutcome] = useState<Outcome>();

@@ -1,6 +1,6 @@
 // Data for the recap card (PRD US-5). Only counts, step kinds and (if asked) file names:
 // never code or file contents.
-import type { EventKind, ReplayEvent, ReplaySession } from "@agentreplay/core";
+import type { EventKind, ReplayEvent, SharedSession } from "@agentreplay/core";
 import { formatDuration } from "@agentreplay/core/format";
 import { formatCost, formatCount } from "./format";
 
@@ -53,28 +53,28 @@ export function stripBars(events: readonly ReplayEvent[]): { position: number; k
 }
 
 const thousands = (n: number): string => n.toLocaleString("en-US");
-const countKind = (session: ReplaySession, kind: EventKind): number =>
+const countKind = (session: SharedSession, kind: EventKind): number =>
   session.events.filter((e) => e.kind === kind).length;
 
 /** Every stat the card can show, in the order it shows them. */
 export const CARD_STATS = [
   {
     id: "duration",
-    stat: (s: ReplaySession): CardStat => ({
+    stat: (s: SharedSession): CardStat => ({
       label: "Duration",
       value: formatDuration(s.stats.durationMs),
     }),
   },
   {
     id: "files",
-    stat: (s: ReplaySession): CardStat => ({
+    stat: (s: SharedSession): CardStat => ({
       label: "Files changed",
       value: thousands(s.stats.filesChanged),
     }),
   },
   {
     id: "lines",
-    stat: (s: ReplaySession): CardStat => ({
+    stat: (s: SharedSession): CardStat => ({
       label: "Lines",
       value: `+${thousands(s.stats.linesAdded)}`,
       extra: `−${thousands(s.stats.linesRemoved)}`,
@@ -82,32 +82,32 @@ export const CARD_STATS = [
   },
   {
     id: "toolCalls",
-    stat: (s: ReplaySession): CardStat => ({
+    stat: (s: SharedSession): CardStat => ({
       label: "Tool calls",
       value: thousands(s.stats.toolCalls),
     }),
   },
   {
     id: "tokens",
-    stat: (s: ReplaySession): CardStat => {
+    stat: (s: SharedSession): CardStat => {
       const t = s.stats.tokens;
       return { label: "Tokens", value: formatCount(t.in + t.out + t.cacheRead + t.cacheWrite) };
     },
   },
   {
     id: "steps",
-    stat: (s: ReplaySession): CardStat => ({ label: "Steps", value: thousands(s.events.length) }),
+    stat: (s: SharedSession): CardStat => ({ label: "Steps", value: thousands(s.events.length) }),
   },
   {
     id: "errors",
-    stat: (s: ReplaySession): CardStat => ({
+    stat: (s: SharedSession): CardStat => ({
       label: "Errors",
       value: thousands(countKind(s, "error")),
     }),
   },
   {
     id: "cost",
-    stat: (s: ReplaySession): CardStat => ({ label: "Cost", value: formatCost(s.stats.costUsd) }),
+    stat: (s: SharedSession): CardStat => ({ label: "Cost", value: formatCost(s.stats.costUsd) }),
   },
 ] as const;
 
@@ -116,7 +116,7 @@ export type CardStatId = (typeof CARD_STATS)[number]["id"];
 export const DEFAULT_CARD_STATS: readonly CardStatId[] = ["files", "lines", "toolCalls", "cost"];
 
 /** The chosen stats, in the card's fixed order, at most four. */
-export function cardStats(session: ReplaySession, chosen: readonly CardStatId[]): CardStat[] {
+export function cardStats(session: SharedSession, chosen: readonly CardStatId[]): CardStat[] {
   return CARD_STATS.filter(({ id }) => chosen.includes(id))
     .slice(0, MAX_CARD_STATS)
     .map(({ stat }) => stat(session));

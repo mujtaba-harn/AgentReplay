@@ -149,6 +149,10 @@ export interface ReplaySession extends SessionSummary {
   stats: SessionStats;
   warnings: { skippedLines: number; redactions: number };
 }
+
+// What leaves the CLI for the browser (and a future share link): no `path`, which holds the OS user name.
+export type SharedSummary = Omit<SessionSummary, "path">;
+export type SharedSession = Omit<ReplaySession, "path">;
 ```
 
 Everything downstream (UI, card, future share API) consumes **only** these types.
@@ -210,8 +214,8 @@ npx agentreplay [--latest] [--card] [--port N] [--no-open] [--path FILE]
 ```
 
 Server routes (all GET, JSON unless noted):
-- `/api/sessions` → `SessionSummary[]`
-- `/api/sessions/:id` → `ReplaySession` (parsed lazily, cached in memory)
+- `/api/sessions` → `SharedSummary[]`
+- `/api/sessions/:id` → `SharedSession` (parsed lazily, cached in memory; the server strips `path`)
 - `/*` → static files from bundled `web/dist`
 
 The CLI opens `/?session=<id>`; the web UI reads `session` from the query string to know which replay to load.

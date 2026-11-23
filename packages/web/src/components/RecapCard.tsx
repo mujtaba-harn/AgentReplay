@@ -1,6 +1,6 @@
 // PRD US-5: the 1080×1920 recap card. Shows counts and step kinds only — never code or file
 // contents, and file names only when the user turns them on.
-import type { ReplaySession } from "@agentreplay/core";
+import type { SharedSession } from "@agentreplay/core";
 import { formatDuration } from "@agentreplay/core/format";
 import { type Ref, useMemo } from "react";
 import {
@@ -53,7 +53,7 @@ export const defaultCardOptions = (): CardOptions => ({
 });
 
 interface RecapCardProps {
-  session: ReplaySession;
+  session: SharedSession;
   options: CardOptions;
   /** The card's root, which the PNG export draws. */
   ref?: Ref<HTMLDivElement>;

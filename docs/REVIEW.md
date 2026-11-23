@@ -54,10 +54,15 @@ Please check:
       (`read-session.ts`).
 - [ ] Try to get a secret through: keys split across lines or JSON-escaped, base64-wrapped keys,
       keys inside file paths, keys in tool *inputs* vs tool *results*, very long lines.
+- [ ] A command that names a sensitive file (`cat .env`, `type credentials.json`) has its whole
+      output and error text replaced by `[hidden: this command read a sensitive file]`
+      (`readsSensitiveFile` in `redact.ts`). Try commands that read such a file without naming
+      it (globs like `cat .e*`, variables, `cd` then `cat`).
 - [ ] False negatives we already know about (please say whether they block a release):
-      - command output such as `cat .env` gets pattern and entropy masking only, not the
-        sensitive-file rule;
-      - plain-word passwords without digits (`password=correcthorse`) are not masked.
+      - **search** results (the Grep tool) over a sensitive file get pattern and entropy masking
+        only;
+      - plain-word passwords without digits (`password=correcthorse`) are not masked outside
+        those hidden outputs.
 - [ ] `warnings.redactions` should count masks that actually appear in the output. Check it does.
 
 ## 2. Local server (`packages/cli/src/server.ts`, `static.ts`)
@@ -85,8 +90,10 @@ Please check:
       without CORS, but it can fire GETs. Is the side effect of `/api/card-done` (the CLI exits
       during `--card`) acceptable?
 - [ ] Error responses never include log text. A 500 is a fixed sentence.
-- [ ] `/api/sessions` returns each summary's absolute `path`, which contains the OS user name.
-      It is local only, but should it be stripped before the browser sees it?
+- [ ] The browser never receives a log's file path, which holds the OS user name: the server
+      strips `path` (`withoutPath` in `server.ts`, typed as `SharedSession`). Check no other
+      field carries an absolute path (event `file`s are relative to the project folder unless
+      Claude touched a file outside it).
 
 ## 3. Recap card (`packages/web/src/card.ts`, `moment.ts`, `components/RecapCard.tsx`, `export.ts`)
 

@@ -1,12 +1,12 @@
 // Playback state: one reducer, no store library (ARCHITECTURE.md §9). Indexes always point into
 // session.events; the filter only decides which of those steps can be visited.
-import type { EventKind, ReplayEvent, ReplaySession } from "@agentreplay/core";
+import type { EventKind, ReplayEvent, SharedSession } from "@agentreplay/core";
 
 export type Filter = "all" | "edits" | "commands" | "errors";
 export type Speed = 1 | 5 | 20;
 
 export interface PlaybackState {
-  session: ReplaySession;
+  session: SharedSession;
   index: number;
   playing: boolean;
   speed: Speed;
@@ -57,7 +57,7 @@ export function visibleIndexes(events: readonly ReplayEvent[], filter: Filter): 
   return events.flatMap((e, i) => (isVisible(e.kind, filter) ? [i] : []));
 }
 
-export function initialPlayback(session: ReplaySession): PlaybackState {
+export function initialPlayback(session: SharedSession): PlaybackState {
   return { session, index: 0, playing: false, speed: 1, filter: "all", cardOpen: false };
 }
 

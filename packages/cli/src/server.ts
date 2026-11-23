@@ -60,6 +60,11 @@ function isAllowedHost(host: string | undefined, port: number): boolean {
   return value === `${LOOPBACK}:${port}` || value === `localhost:${port}`;
 }
 
+/** Everything but the local file path, which holds the OS user name and stays in the CLI. */
+function withoutPath<T extends { path: string }>({ path: _path, ...shared }: T): Omit<T, "path"> {
+  return shared;
+}
+
 /** The first summary wins when two logs share an id; summaries arrive newest first. */
 function sessionsById(sessions: readonly SessionSummary[]): Map<string, SessionSummary> {
   const byId = new Map<string, SessionSummary>();
@@ -78,15 +83,16 @@ function routes(options: ServerOptions): Route {
     return cached;
   };
 
+  const shared = options.sessions.map(withoutPath);
   return async ({ pathname, searchParams }) => {
-    if (pathname === "/api/sessions") return json(200, options.sessions);
+    if (pathname === "/api/sessions") return json(200, shared);
     if (pathname === "/api/card-done" && options.onCardDone) {
       options.onCardDone(searchParams.get("saved") === "1");
       return json(200, { ok: true });
     }
     const match = SESSION_ROUTE.exec(pathname);
     const summary = match?.[1] === undefined ? undefined : byId.get(match[1]);
-    if (summary) return json(200, await replayOf(summary));
+    if (summary) return json(200, withoutPath(await replayOf(summary)));
     if (pathname.startsWith("/api/")) return json(404, { error: "No such session." });
     const file = await staticFile(options.webRoot, pathname);
     return file ? { status: 200, ...file } : text(404, "Not found.");
