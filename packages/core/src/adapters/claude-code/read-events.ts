@@ -2,7 +2,13 @@
 // as soon as it is parsed, so no unmasked text reaches an event. parse() (with stats) wraps this.
 import { createReadStream } from "node:fs";
 import { createInterface } from "node:readline";
-import { HIDDEN_FILE, isSensitiveFile, redactDeep } from "../../redact.js";
+import {
+  HIDDEN_FILE,
+  HIDDEN_OUTPUT,
+  isSensitiveFile,
+  readsSensitiveFile,
+  redactDeep,
+} from "../../redact.js";
 import type { ReplayEvent, TokenUsage } from "../../types.js";
 import { diffOf } from "./diff.js";
 import {
@@ -123,7 +129,8 @@ function readToolResult(state: ReadState, line: UserLine, block: ContentBlock): 
     block.tool_use_id === undefined ? undefined : state.pendingTools.get(block.tool_use_id);
   if (call === undefined) return; // result of a tool we skip (e.g. Skill, ToolSearch)
   state.pendingTools.delete(call.id);
-  const text = resultText(block).trim();
+  const hide = call.kind === "command" && call.text !== undefined && readsSensitiveFile(call.text);
+  const text = hide ? HIDDEN_OUTPUT : resultText(block).trim();
   if (block.is_error) {
     const error: ReplayEvent = {
       id: `${call.id}-error`,

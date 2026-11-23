@@ -160,3 +160,16 @@ export function isSensitiveFile(path: string): boolean {
   const name = path.split(/[\\/]/).at(-1) ?? "";
   return SENSITIVE_FILES.some((re) => re.test(name));
 }
+
+export const HIDDEN_OUTPUT = "[hidden: this command read a sensitive file]";
+
+// Spaces, quotes and shell punctuation separate the words of a command line.
+const COMMAND_WORD_BREAKS = /[\s"'`;|&<>()]+/;
+
+/**
+ * True when a command line names a sensitive file (e.g. `cat .env`). Pattern masking only
+ * catches key-shaped values, so such a command's whole output is hidden instead.
+ */
+export function readsSensitiveFile(command: string): boolean {
+  return command.split(COMMAND_WORD_BREAKS).some((word) => word !== "" && isSensitiveFile(word));
+}
