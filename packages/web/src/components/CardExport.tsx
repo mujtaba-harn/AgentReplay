@@ -8,6 +8,13 @@ import { defaultCardOptions, RecapCard } from "./RecapCard";
 
 type Outcome = { saved: true; file: string } | { saved: false; reason: string };
 
+/**
+ * --card saves without showing the card first, so it can't use the session title: that is the
+ * first prompt, which may hold code or part of a secret. The page's editor offers custom titles.
+ */
+export const CARD_EXPORT_TITLE = "A Claude Code session";
+const CARD_EXPORT_OPTIONS = { ...defaultCardOptions(), title: CARD_EXPORT_TITLE };
+
 export function CardExport({ session }: { session: SharedSession }) {
   const card = useRef<HTMLDivElement>(null);
   const started = useRef(false); // React StrictMode runs effects twice in development
@@ -46,7 +53,7 @@ export function CardExport({ session }: { session: SharedSession }) {
         />
       )}
       <div className="card-frame">
-        <RecapCard ref={card} session={session} options={defaultCardOptions()} />
+        <RecapCard ref={card} session={session} options={CARD_EXPORT_OPTIONS} />
       </div>
     </section>
   );

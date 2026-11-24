@@ -7,7 +7,7 @@ const downloadCard = vi.fn(async () => "crafter-replay-card-2026-11-23.png");
 const copyCard = vi.fn(async () => {});
 vi.mock("../src/export", () => ({ downloadCard, copyCard }));
 
-const { CardExport } = await import("../src/components/CardExport");
+const { CardExport, CARD_EXPORT_TITLE } = await import("../src/components/CardExport");
 const { CardView } = await import("../src/components/CardView");
 
 const session = {
@@ -76,6 +76,14 @@ describe("CardExport (--card)", () => {
     expect(await screen.findByText(/Saved crafter-replay-card-2026-11-23.png/)).toBeTruthy();
     expect(downloadCard).toHaveBeenCalledOnce();
     await waitFor(() => expect(fetchMock).toHaveBeenCalledWith("/api/card-done?saved=1"));
+  });
+
+  it("never puts the first prompt on a card the user had no chance to check", async () => {
+    render(<CardExport session={session} />);
+
+    expect(await screen.findByText(/Saved crafter-replay-card/)).toBeTruthy();
+    expect(screen.queryByText("Built an expense tracker")).toBeNull();
+    expect(screen.getByRole("heading", { name: CARD_EXPORT_TITLE })).toBeTruthy();
   });
 
   it("tells the CLI when the card could not be saved", async () => {

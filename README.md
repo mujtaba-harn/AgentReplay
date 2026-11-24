@@ -47,7 +47,7 @@ The first run downloads Crafter Replay, which takes a few seconds.
 | `-h`, `--help` | Show all options |
 | `-v`, `--version` | Show the version |
 
-Example: `npx crafter-replay --card` saves today's card to your browser's Downloads folder without opening the replay.
+Example: `npx crafter-replay --card` saves today's card to your browser's Downloads folder without opening the replay. Its title is always "A Claude Code session", because you don't see the card before it is saved; to write your own title, open the replay and use **Recap card**.
 
 ## Privacy
 
