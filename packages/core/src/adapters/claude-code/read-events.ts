@@ -5,8 +5,8 @@ import { createInterface } from "node:readline";
 import {
   HIDDEN_FILE,
   HIDDEN_OUTPUT,
+  hideSensitiveLines,
   isSensitiveFile,
-  readsSensitiveFile,
   redactDeep,
 } from "../../redact.js";
 import type { ReplayEvent, TokenUsage } from "../../types.js";
@@ -23,6 +23,7 @@ import { parseJson, promptText, timestampOf, toTitle } from "./text.js";
 import { mergeTokens, replyId, shortCacheWritesOf, tokensOf } from "./tokens.js";
 import {
   KINDS_WITH_OUTPUT,
+  readsSensitiveData,
   relativeFile,
   resultText,
   TOOL_TO_KIND,
@@ -55,6 +56,8 @@ interface ReadState extends EventsRead {
   attachedReplies: Set<string>;
   /** Tool calls waiting for their result, by tool_use id. */
   pendingTools: Map<string, ReplayEvent>;
+  /** Tool calls whose whole result must be hidden (they read a sensitive file or the env). */
+  sensitiveCalls: Set<string>;
 }
 
 const UNKNOWN_MODEL = "unknown";
@@ -98,6 +101,7 @@ function readToolCall(state: ReadState, line: AssistantLine, block: ContentBlock
   if (file !== undefined) event.file = file;
   const text = toolText(block.name, input);
   if (text !== undefined) event.text = text;
+  if (readsSensitiveData(block.name, input)) state.sensitiveCalls.add(block.id);
   state.pendingTools.set(block.id, event);
   pushReplyEvent(state, line, event);
 }
@@ -129,8 +133,9 @@ function readToolResult(state: ReadState, line: UserLine, block: ContentBlock): 
     block.tool_use_id === undefined ? undefined : state.pendingTools.get(block.tool_use_id);
   if (call === undefined) return; // result of a tool we skip (e.g. Skill, ToolSearch)
   state.pendingTools.delete(call.id);
-  const hide = call.kind === "command" && call.text !== undefined && readsSensitiveFile(call.text);
-  const text = hide ? HIDDEN_OUTPUT : resultText(block).trim();
+  const text = state.sensitiveCalls.has(call.id)
+    ? HIDDEN_OUTPUT
+    : hideSensitiveLines(resultText(block).trim());
   if (block.is_error) {
     const error: ReplayEvent = {
       id: `${call.id}-error`,
@@ -234,6 +239,7 @@ export async function readEvents(path: string): Promise<EventsRead> {
     countedReplies: new Set(),
     attachedReplies: new Set(),
     pendingTools: new Map(),
+    sensitiveCalls: new Set(),
   };
   const lines = createInterface({
     input: createReadStream(path, { encoding: "utf8" }),

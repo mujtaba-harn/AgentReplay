@@ -160,23 +160,68 @@ export function redactDeep(value: unknown, onMask: (mask: string) => void): unkn
   return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, redactDeep(v, onMask)]));
 }
 
-const SENSITIVE_FILES: readonly RegExp[] = [/^\.env(\..*)?$/, /\.pem$/, /^id_rsa/, /^credentials/];
+// Case-insensitive: Windows and macOS treat `.Env` and `.env` as the same file.
+const SENSITIVE_FILES: readonly RegExp[] = [
+  /^\.env(rc|\..*)?$/i,
+  /\.(pem|p12|pfx|tfstate)$/i,
+  // Not every `*.key`: `e.key` is everyday JavaScript, so only the usual key-file names.
+  /^(master|private|server|client|tls|ssl)\.key$/i,
+  /^id_(rsa|dsa|ecdsa|ed25519)/i,
+  /^(\.git-)?credentials/i,
+  /^[._]?(netrc|npmrc|pgpass)$/i,
+  /^secrets\.(json|ya?ml|toml|txt)$/i,
+];
+
+const SENSITIVE_DOTFILES: readonly string[] = [".env", ".envrc", ".netrc", ".npmrc", ".pgpass"];
+
+/**
+ * `.e*` may expand to `.env`; only the shell knows, so assume it does. Checking real names keeps
+ * code like `runs?.[0]` and `/.*picker/` out; `**` is Markdown bold after a full stop.
+ */
+function wildcardMatchesDotfile(name: string): boolean {
+  if (!name.startsWith(".") || !/[*?]/.test(name) || name.includes("**")) return false;
+  const escaped = name.replace(/[.+^${}()|[\]\\]/g, "\\$&");
+  const pattern = new RegExp(`^${escaped.replaceAll("*", ".*").replaceAll("?", ".")}$`, "i");
+  return SENSITIVE_DOTFILES.some((file) => pattern.test(file));
+}
 
 /** Files whose content must never be shown, whatever it contains. */
 export function isSensitiveFile(path: string): boolean {
   const name = path.split(/[\\/]/).at(-1) ?? "";
-  return SENSITIVE_FILES.some((re) => re.test(name));
+  return SENSITIVE_FILES.some((re) => re.test(name)) || wildcardMatchesDotfile(name);
 }
 
-export const HIDDEN_OUTPUT = "[hidden: this command read a sensitive file]";
+export const HIDDEN_OUTPUT = "[hidden: this command read sensitive data]";
+export const HIDDEN_LINE = "[hidden: line from a sensitive file]";
 
-// Spaces, quotes and shell punctuation separate the words of a command line.
-const COMMAND_WORD_BREAKS = /[\s"'`;|&<>()]+/;
+// Spaces, quotes, `=` and shell punctuation separate the words of a command line.
+const COMMAND_WORD_BREAKS = /[\s"'`;|&<>()=]+/;
+
+// Commands that print every environment variable (`env`, `printenv`, PowerShell's `env:` drive)
+// or one by name (`echo $env:API_KEY`). Using one inside a path (`"$env:TEMP\x.js"`) or setting
+// one (`$env:X = …`) prints nothing secret.
+const ENV_DUMPS: readonly RegExp[] = [
+  /(?:^|[;&|]\s*)(?:env|printenv|set|export -p)\s*(?:$|[;&|])/m,
+  /\bprintenv\b/,
+  /\b(?:gci|ls|dir|Get-ChildItem)\s+env:/i,
+  /(?:^|[;&|]\s*|\b(?:echo|Write-Output|Write-Host)\s+)["']?\$env:\w+\b(?!\s*=)/im,
+];
+
+const namesSensitiveFile = (text: string): boolean =>
+  text.split(COMMAND_WORD_BREAKS).some((word) => word !== "" && isSensitiveFile(word));
 
 /**
- * True when a command line names a sensitive file (e.g. `cat .env`). Pattern masking only
- * catches key-shaped values, so such a command's whole output is hidden instead.
+ * True when a command line names a sensitive file (e.g. `cat .env`) or prints the environment.
+ * Pattern masking only catches key-shaped values, so such a command's whole output is hidden.
  */
 export function readsSensitiveFile(command: string): boolean {
-  return command.split(COMMAND_WORD_BREAKS).some((word) => word !== "" && isSensitiveFile(word));
+  return namesSensitiveFile(command) || ENV_DUMPS.some((re) => re.test(command));
+}
+
+/** Hides the lines of a search or listing that come from a sensitive file (`.env:3:PASS=…`). */
+export function hideSensitiveLines(output: string): string {
+  return output
+    .split("\n")
+    .map((line) => (namesSensitiveFile(line.replaceAll(":", " ")) ? HIDDEN_LINE : line))
+    .join("\n");
 }

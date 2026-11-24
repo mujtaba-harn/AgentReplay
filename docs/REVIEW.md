@@ -55,7 +55,7 @@ Please check:
 - [ ] Try to get a secret through: keys split across lines or JSON-escaped, base64-wrapped keys,
       keys inside file paths, keys in tool *inputs* vs tool *results*, very long lines.
 - [ ] A command that names a sensitive file (`cat .env`, `type credentials.json`) has its whole
-      output and error text replaced by `[hidden: this command read a sensitive file]`
+      output and error text replaced by `[hidden: this command read sensitive data]`
       (`readsSensitiveFile` in `redact.ts`). Try commands that read such a file without naming
       it (globs like `cat .e*`, variables, `cd` then `cat`).
 - [ ] False negatives we already know about (please say whether they block a release):

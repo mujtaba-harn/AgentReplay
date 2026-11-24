@@ -1,4 +1,5 @@
 // How Claude Code tool calls become timeline events. Tool names verified against test/fixtures.
+import { readsSensitiveFile } from "../../redact.js";
 import type { EventKind } from "../../types.js";
 import type { ContentBlock } from "./schema.js";
 import { shortPath } from "./text.js";
@@ -56,6 +57,19 @@ const TITLES: Readonly<Record<string, (input: ToolInput, file: string | undefine
 
 export function toolTitle(name: string, input: ToolInput, file: string | undefined): string {
   return TITLES[name]?.(input, file === undefined ? undefined : shortPath(file)) ?? name;
+}
+
+// The inputs that say what a tool reads; Grep's own pattern is search text, not a file.
+const READ_TARGETS: Readonly<Record<string, readonly string[]>> = {
+  Bash: ["command"],
+  PowerShell: ["command"],
+  Grep: ["path", "glob"],
+};
+
+/** True when a tool's whole output may be a sensitive file's contents or the environment. */
+export function readsSensitiveData(name: string, input: ToolInput): boolean {
+  const targets = READ_TARGETS[name] ?? [];
+  return targets.some((key) => readsSensitiveFile(field(input, key) ?? ""));
 }
 
 /** The command text shown in step detail, for kinds where that is meaningful. */
