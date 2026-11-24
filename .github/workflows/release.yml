@@ -46,7 +46,12 @@ jobs:
       - name: Pack
         run: pnpm --filter crafter-replay pack --pack-destination "$RUNNER_TEMP"
 
-      - name: Publish
-        run: npm publish "$RUNNER_TEMP"/crafter-replay-*.tgz --access public --provenance
+      # npm only accepts new versions from CI into a staging area; the owner then approves them on
+      # npmjs.com with two-factor login, so a leaked token alone can't publish. Staging needs npm 11.15+.
+      - name: Install an npm that supports staged publishing
+        run: npm install -g npm@12.2.3
+
+      - name: Stage for the owner's approval
+        run: npm stage publish "$RUNNER_TEMP"/crafter-replay-*.tgz --access public --provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
