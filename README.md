@@ -61,6 +61,15 @@ Crafter Replay is built so your code stays private:
 
 No automatic check is perfect. Look at a card before you post it.
 
+## Security
+
+Found a way Crafter Replay could leak a secret or expose your sessions? Please report it privately:
+open the repository's **Security** tab and choose **Report a vulnerability**. Don't open a public
+issue for it.
+
+Reviews are welcome. [`docs/REVIEW.md`](docs/REVIEW.md) lists what Crafter Replay promises and
+where to look in the code to try to break it.
+
 ## Supported versions
 
 - **Claude Code**: tested with 2.1.328 – 2.1.330. Claude Code's log format isn't documented and can change; if a newer version adds something Crafter Replay doesn't recognise, that line is skipped and the page tells you how many were skipped.

@@ -1,6 +1,6 @@
 # Security and privacy review checklist (F1.25)
 
-For the outside developer reviewing Crafter Replay before its first npm release. Please read
+For anyone reviewing Crafter Replay's security and privacy. Please read
 `docs/PRD.md` (US-6) and `docs/ARCHITECTURE.md` §7–§8 first; they state what we promise.
 
 **What Crafter Replay is:** `npx crafter-replay` reads Claude Code's local session logs

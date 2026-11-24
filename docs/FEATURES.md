@@ -68,7 +68,7 @@ Goal: `npx crafter-replay` works end-to-end on real sessions. Full spec in `PRD.
 | ID | Feature | Size | Done when |
 |---|---|---|---|
 | F1.24 | README: GIF, install, flags, privacy statement, supported Claude Code versions | S | A non-dev can follow it |
-| F1.25 | External developer review of redaction + server security + publish config | S | Review notes resolved |
+| F1.25 | Independent review (AI reviewer without the build history) of redaction + server security + publish config; outside review invited via README | S | Review notes resolved |
 | F1.26 | Publish `crafter-replay@0.1.0` to npm (2FA on, provenance on) | S | `npx crafter-replay` works from a fresh machine |
 
 **Exit criteria:** PRD release checklist complete. 10 outside testers have run it on their own sessions.
