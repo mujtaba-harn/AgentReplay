@@ -44,8 +44,12 @@ How it works today:
   - Any 32+ character token with Shannon entropy above 4.0.
 - A mask keeps the last 4 characters as a hint when the secret is 16+ characters long:
   `sk-ant-••••••••Ab3x`. **Please judge whether that hint is acceptable.**
-- Edits and writes to `.env*`, `*.pem`, `id_rsa*` and `credentials*` have both sides of the diff
-  replaced with `[hidden: sensitive file]`.
+- Edits and writes to sensitive files (`isSensitiveFile`: `.env*`, `.envrc`, `.netrc`, `.npmrc`,
+  `.pgpass`, `.git-credentials`, `*.pem`/`.p12`/`.pfx`, `id_rsa`/`id_ed25519`…, `credentials*`,
+  `*.tfstate`, `secrets.json|yml|toml`; any letter case) have both sides of the diff replaced
+  with `[hidden: sensitive file]`.
+- The home folder (`C:Users<name>`, `/home/<name>`) is replaced with `~` in every string, so
+  the OS user name never reaches the page.
 
 Please check:
 
@@ -59,8 +63,9 @@ Please check:
       (`readsSensitiveFile` in `redact.ts`). Try commands that read such a file without naming
       it (globs like `cat .e*`, variables, `cd` then `cat`).
 - [ ] False negatives we already know about (please say whether they block a release):
-      - **search** results (the Grep tool) over a sensitive file get pattern and entropy masking
-        only;
+      - a command that reaches a sensitive file without naming it (`cat $(ls | grep env)`);
+      - a key of an unknown format shorter than 32 characters, or one with no secret-like name
+        in front of it (a bare AWS secret key, a bare hex key);
       - plain-word passwords without digits (`password=correcthorse`) are not masked outside
         those hidden outputs.
 - [ ] `warnings.redactions` should count masks that actually appear in the output. Check it does.
@@ -80,6 +85,7 @@ How it works today:
   is refused.
 - `GET /api/card-done?saved=1|0` exists only during `--card` and only makes the CLI print a
   message and exit.
+- `/api/*` refuses requests whose `Sec-Fetch-Site` says they came from another site.
 
 Please check:
 
@@ -98,7 +104,7 @@ Please check:
 ## 3. Recap card (`packages/web/src/card.ts`, `moment.ts`, `components/RecapCard.tsx`, `export.ts`)
 
 - [ ] The card renders only: the title (the first prompt, redacted, shortened to 60 characters,
-      user-editable), counts, step kinds, the "biggest moment" sentence and, when opted in,
+      user-editable; `--card` always uses "A Claude Code session"), counts, step kinds, the "biggest moment" sentence and, when opted in,
       bare file names (no folders). Nothing else from events should reach it.
 - [ ] The title can contain code if the first prompt did. Is relying on the editable title
       enough?
@@ -113,15 +119,16 @@ Please check:
       source maps, no local paths.
 - [ ] `dist/index.js` bundles `core`; runtime dependencies are `zod`, `@clack/prompts` and
       `open` (which spawns the OS browser opener). Review them and their transitive dependencies.
-- [ ] `"private": true` is still set on purpose, so it can't be published by accident. The plan
-      for F1.26: remove it, publish from GitHub Actions with `--provenance`, with 2FA on the npm
-      account. Please flag anything missing.
+- [ ] Releases are built by GitHub Actions on a version tag, published with `--provenance` into
+      npm's staging area, and go live only after the owner approves them with 2FA
+      (`docs/RELEASING.md`). Please flag anything missing.
 - [ ] Nothing in the repo or its history contains real secrets or full real logs. The full logs
       live only in the git-ignored `packages/core/test/fixtures-private/`.
 
 ## Reporting
 
-Please open GitHub issues (or send one notes file), each with:
+Please report problems privately: the repository's **Security** tab → **Report a
+vulnerability**. Don't open public issues for them. For each problem, please give:
 
 - **severity:** blocker, should fix before release, or later;
 - **where:** file and line;
@@ -129,3 +136,30 @@ Please open GitHub issues (or send one notes file), each with:
 - **suggested fix**, if any.
 
 Each fix will come with a test that reproduces the problem first.
+
+## Review history
+
+### 2026-11-24 — independent AI review
+
+There was no outside developer, so F1.25 was done by an AI reviewer that saw only the code
+and this checklist, not how it was built. It probed the parser, the running server and the packed
+package. Promises 1, 3 and 5 held. Fixed, each with a test that failed first:
+
+- AWS secret keys (`aws_secret_access_key = …`, `"SecretAccessKey": …`), JSON inside strings,
+  `mysql -p…`, `curl -u user:…`, short Bearer tokens, Slack webhooks, more secret names and
+  zero-width characters were not masked.
+- Hostile input (`KEYKEYKEY…`) made masking take minutes; name lengths are now bounded.
+- The sensitive-file rules missed other letter cases, many credential files, wildcards (`.e*`),
+  environment dumps (`env`, `printenv`, `$env:X`) and Grep searches; lines from sensitive
+  files in other output are now hidden too.
+- `--card` put the unchecked first prompt on the PNG; it now uses a neutral title.
+- The OS user name reached the page through paths and the project name; the home folder is now `~`.
+- Any website could end a `--card` run with a false "saved"; `/api/*` now refuses other sites.
+- A subagent id from the log could point outside the `subagents` folder; it is now checked.
+
+Still open (judged low risk; see the known false negatives above):
+
+- The 4-character hint is also kept for passwords found by name, not only for known key formats.
+- `warnings.redactions` can over-count (subagent steps that aren't shown, identical short masks).
+- The release workflow pins actions by version tag rather than commit SHA, and the permission to
+  mint a provenance token (`id-token: write`) is available to the whole job, including `pnpm install`.
