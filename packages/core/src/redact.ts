@@ -43,15 +43,25 @@ const SECRET_PATTERNS: readonly SecretPattern[] = [
     regex: /\b(?:gh[opsur]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,})/g,
     prefix: leading(/^(?:github_pat_|gh[opsur]_)/),
   },
-  { name: "aws", regex: /\bAKIA[A-Z0-9]{16}\b/g, prefix: () => "AKIA" },
+  // Not \b: an underscore in front (`x_AKIA…`) would hide the key from a word boundary.
+  { name: "aws", regex: /(?<![A-Z0-9])AKIA[A-Z0-9]{16}(?![A-Z0-9])/g, prefix: () => "AKIA" },
   { name: "slack", regex: /\bxox[abpr]-[A-Za-z0-9-]{10,}/g, prefix: leading(/^xox[abpr]-/) },
+  {
+    name: "slack-webhook",
+    regex: /\bhooks\.slack\.com\/services\/[A-Za-z0-9/]{8,}/g,
+    prefix: () => "hooks.slack.com/services/",
+  },
   { name: "google", regex: /\bAIza[0-9A-Za-z_-]{35}/g, prefix: () => "AIza" },
   { name: "jwt", regex: /\beyJ[A-Za-z0-9_-]{10,}\.eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}/g },
 ];
 
 // A secret value must be 8+ characters with no spaces or brackets, so `TOKEN = getToken()` stays.
-const VALUE = String.raw`([^\s"'(),;{}\[\]<>]{8,})(?=$|[\s"',;)}\]])`;
-const ASSIGN = String.raw`["']?\s*[:=]\s*["']?`;
+// A backslash ends it too, so the escapes of JSON stored inside a string (`\"`) stay intact.
+const VALUE = String.raw`([^\s"'(),;{}\[\]<>\\]{8,})(?=$|[\s"',;)}\]\\])`;
+const ASSIGN = String.raw`\\?["']?\s*[:=]\s*\\?["']?`;
+// Bounded name lengths keep matching linear on hostile input like "KEYKEYKEY…".
+const UPPER_NAME = String.raw`\b[A-Z0-9_]{0,40}(?:KEY|SECRET|TOKEN|PASS|CREDENTIAL)[A-Z0-9_]{0,40}`;
+const CODE_NAME = String.raw`\b\w{0,40}(?:pass|passwd|password|secret|token|api_?key|access_?key|private_?key_?id|credentials?)`;
 
 interface ValuePattern {
   /** Group 1 is kept, group 2 is the secret. */
@@ -68,21 +78,15 @@ const VALUE_PATTERNS: readonly ValuePattern[] = [
   // postgres://user:PASSWORD@host — a password in an address is always a secret.
   { regex: /\b([a-z][a-z0-9+.-]*:\/\/[^\s:@/"'\\]+:)([^\s@/"'\\]+)(?=@)/gi, mixedOnly: false },
   // API_KEY=value, DB_PASSWORD: value (environment-style names)
-  {
-    regex: new RegExp(
-      String.raw`(\b[A-Z0-9_]*(?:KEY|SECRET|TOKEN|PASSWORD|PASSWD)[A-Z0-9_]*${ASSIGN})${VALUE}`,
-      "g",
-    ),
-    mixedOnly: true,
-  },
-  // password: "value", apiKey = value, csrfToken: value (code-style names)
-  {
-    regex: new RegExp(
-      String.raw`(\b\w*(?:password|passwd|secret|token|api_?key)${ASSIGN})${VALUE}`,
-      "gi",
-    ),
-    mixedOnly: true,
-  },
+  { regex: new RegExp(String.raw`(${UPPER_NAME}${ASSIGN})${VALUE}`, "g"), mixedOnly: true },
+  // password: "value", aws_secret_access_key = value, SecretAccessKey: value (code-style names)
+  { regex: new RegExp(String.raw`(${CODE_NAME}${ASSIGN})${VALUE}`, "gi"), mixedOnly: true },
+  // mysql -pPASSWORD
+  { regex: /(\b(?:mysql|mysqldump|mariadb)\b[^\n]{0,200}?\s-p)([^\s"']{4,})/g, mixedOnly: false },
+  // curl -u user:PASSWORD
+  { regex: /(\s(?:-u|--user)\s+["']?[^\s:"']+:)([^\s"']{4,})/g, mixedOnly: false },
+  // Authorization: Bearer TOKEN — shorter than the 32 characters the random-token rule needs.
+  { regex: /(\bBearer\s+)([A-Za-z0-9._~+/=-]{12,})/g, mixedOnly: true },
 ];
 
 const mixesLettersAndDigits = (text: string): boolean => /\d/.test(text) && /[A-Za-z]/.test(text);
@@ -118,6 +122,8 @@ function looksRandom(token: string): boolean {
   return mixesLettersAndDigits(token) && shannonEntropy(token) > ENTROPY_LIMIT;
 }
 
+const ZERO_WIDTH = /[​-‍⁠﻿]/g;
+
 const PRIVATE_KEY_BLOCK =
   /-----BEGIN [A-Z ]*PRIVATE KEY-----[\s\S]*?-----END [A-Z ]*PRIVATE KEY-----/g;
 
@@ -127,7 +133,8 @@ export function redact(input: string): Redacted {
     masks.push(replacement);
     return replacement;
   };
-  let text = input.replace(PRIVATE_KEY_BLOCK, () => hide(HIDDEN_KEY_BLOCK));
+  // An invisible character inside a key would split it into pieces too short to recognise.
+  let text = input.replace(ZERO_WIDTH, "").replace(PRIVATE_KEY_BLOCK, () => hide(HIDDEN_KEY_BLOCK));
   for (const pattern of SECRET_PATTERNS) {
     text = text.replace(pattern.regex, (match) => hide(mask(match, pattern.prefix?.(match))));
   }
