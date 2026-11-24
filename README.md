@@ -1,6 +1,6 @@
 # Crafter Replay
 
-[![CI](https://github.com/mujtaba-harn/AgentReplay/actions/workflows/ci.yml/badge.svg)](https://github.com/mujtaba-harn/AgentReplay/actions/workflows/ci.yml)
+[![CI](https://github.com/mujtaba-harn/crafter-replay/actions/workflows/ci.yml/badge.svg)](https://github.com/mujtaba-harn/crafter-replay/actions/workflows/ci.yml)
 
 **Watch a Claude Code session again, step by step, in your browser — and turn it into a recap card you can share.**
 
@@ -76,7 +76,7 @@ No automatic check is perfect. Look at a card before you post it.
 | "The session list needs an interactive terminal." | Use `--latest` or `--path FILE`. |
 | "Can't reach Crafter Replay." in the browser | The terminal was closed. Run `npx crafter-replay` again. |
 
-Still stuck? Run with `DEBUG=crafter-replay` to see details, and [open an issue](https://github.com/mujtaba-harn/AgentReplay/issues).
+Still stuck? Run with `DEBUG=crafter-replay` to see details, and [open an issue](https://github.com/mujtaba-harn/crafter-replay/issues).
 
 ## For developers
 

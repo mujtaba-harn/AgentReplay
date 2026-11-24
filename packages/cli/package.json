@@ -5,10 +5,10 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mujtaba-harn/AgentReplay.git"
+    "url": "git+https://github.com/mujtaba-harn/crafter-replay.git"
   },
-  "homepage": "https://github.com/mujtaba-harn/AgentReplay#readme",
-  "bugs": "https://github.com/mujtaba-harn/AgentReplay/issues",
+  "homepage": "https://github.com/mujtaba-harn/crafter-replay#readme",
+  "bugs": "https://github.com/mujtaba-harn/crafter-replay/issues",
   "keywords": [
     "claude-code",
     "replay",
