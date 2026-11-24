@@ -1,7 +1,9 @@
 import { createReadStream } from "node:fs";
 import { open } from "node:fs/promises";
+import { homedir } from "node:os";
 import { basename, dirname } from "node:path";
 import { createInterface } from "node:readline";
+import { homeHider, projectFromLogFolder } from "../../home.js";
 import { redact } from "../../redact.js";
 import type { SessionSummary } from "../../types.js";
 import { costStateSchema, userLineSchema } from "./schema.js";
@@ -96,13 +98,16 @@ export interface SummaryFacts {
 /** The summary plus the exact cost, which parse() needs and reads from the same file tail. */
 export async function summaryFacts(path: string): Promise<SummaryFacts> {
   const [head, tail] = await Promise.all([readHead(path), readTail(path)]);
+  const hideHome = homeHider(homedir());
   const summary: SessionSummary = {
     id: basename(path, LOG_EXTENSION),
     agent: "claude-code",
     path,
     // Redact before shortening, so a key cut at 60 characters can never slip through as a fragment.
-    title: head.prompt === undefined ? NO_PROMPT : toTitle(redact(head.prompt).text),
-    project: projectName(head.cwd) ?? basename(dirname(path)),
+    title: head.prompt === undefined ? NO_PROMPT : toTitle(redact(hideHome(head.prompt)).text),
+    project:
+      projectName(head.cwd === undefined ? undefined : hideHome(head.cwd)) ??
+      projectFromLogFolder(basename(dirname(path)), homedir()),
     startedAt: tail.cost?.startTime ?? head.firstTimestamp ?? tail.modifiedAt,
     durationMs: durationOf(head, tail),
   };

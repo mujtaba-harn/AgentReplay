@@ -1,7 +1,9 @@
 // Internal: turns a Claude Code log into timeline events. Every user/assistant line is redacted
 // as soon as it is parsed, so no unmasked text reaches an event. parse() (with stats) wraps this.
 import { createReadStream } from "node:fs";
+import { homedir } from "node:os";
 import { createInterface } from "node:readline";
+import { homeHider } from "../../home.js";
 import {
   HIDDEN_FILE,
   HIDDEN_OUTPUT,
@@ -58,6 +60,8 @@ interface ReadState extends EventsRead {
   pendingTools: Map<string, ReplayEvent>;
   /** Tool calls whose whole result must be hidden (they read a sensitive file or the env). */
   sensitiveCalls: Set<string>;
+  /** Replaces the home folder (which names the OS user) with "~". */
+  hideHome: (text: string) => string;
 }
 
 const UNKNOWN_MODEL = "unknown";
@@ -213,7 +217,7 @@ function readLine(state: ReadState, raw: string, lineNumber: number): void {
   const type = "type" in json ? json.type : undefined;
   if (type !== "user" && type !== "assistant") return;
   // Mask secrets in every string before anything is built from the line (F1.5).
-  const safe = redactDeep(withoutThinking(json), (mask) => state.masks.add(mask));
+  const safe = redactDeep(withoutThinking(json), (mask) => state.masks.add(mask), state.hideHome);
   if (type === "user") {
     const user = userLineSchema.safeParse(safe);
     if (user.success) readUser(state, user.data, lineNumber);
@@ -240,6 +244,7 @@ export async function readEvents(path: string): Promise<EventsRead> {
     attachedReplies: new Set(),
     pendingTools: new Map(),
     sensitiveCalls: new Set(),
+    hideHome: homeHider(homedir()),
   };
   const lines = createInterface({
     input: createReadStream(path, { encoding: "utf8" }),

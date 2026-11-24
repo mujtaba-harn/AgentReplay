@@ -149,15 +149,21 @@ export function redact(input: string): Redacted {
 }
 
 /** Redacts every string inside a parsed JSON value, reporting each mask to `onMask`. */
-export function redactDeep(value: unknown, onMask: (mask: string) => void): unknown {
+export function redactDeep(
+  value: unknown,
+  onMask: (mask: string) => void,
+  /** Runs on each string first, e.g. to replace the home folder. */
+  prepare: (text: string) => string = (text) => text,
+): unknown {
   if (typeof value === "string") {
-    const result = redact(value);
+    const result = redact(prepare(value));
     for (const m of result.masks) onMask(m);
     return result.text;
   }
-  if (Array.isArray(value)) return value.map((item) => redactDeep(item, onMask));
+  const deeper = (item: unknown) => redactDeep(item, onMask, prepare);
+  if (Array.isArray(value)) return value.map(deeper);
   if (typeof value !== "object" || value === null) return value;
-  return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, redactDeep(v, onMask)]));
+  return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, deeper(v)]));
 }
 
 // Case-insensitive: Windows and macOS treat `.Env` and `.env` as the same file.
