@@ -4,7 +4,11 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { readEvents } from "../src/adapters/claude-code/read-events.js";
-import { describeActivity, readSession } from "../src/adapters/claude-code/read-session.js";
+import {
+  describeActivity,
+  readSession,
+  subagentFinder,
+} from "../src/adapters/claude-code/read-session.js";
 import type { ReplayEvent } from "../src/types.js";
 
 const FIXTURES = fileURLToPath(new URL("./fixtures/", import.meta.url));
@@ -78,6 +82,16 @@ describe("readSession finds subagent logs on disk", () => {
     const result = await readSession(session);
 
     expect(result.subagentEvents.length).toBeGreaterThan(0);
+  });
+
+  // F1.25 review: the agentId comes from the log, so it must not lead outside `subagents/`.
+  it("ignores an agentId that climbs out of the subagents folder", async () => {
+    const session = join(dir, "abc.jsonl");
+    mkdirSync(join(dir, "abc", "subagents"), { recursive: true });
+    copyFileSync(SUB, join(dir, "agent-x.jsonl"));
+
+    // join() resolves this to <dir>/agent-x.jsonl, which exists.
+    expect(await subagentFinder(session)("x/../../../agent-x")).toBeUndefined();
   });
 });
 

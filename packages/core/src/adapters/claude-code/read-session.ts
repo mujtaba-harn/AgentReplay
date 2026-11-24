@@ -17,6 +17,8 @@ export type SubagentFinder = (agentId: string) => Promise<string | undefined>;
 export function subagentFinder(sessionPath: string): SubagentFinder {
   const dir = join(dirname(sessionPath), basename(sessionPath, ".jsonl"), "subagents");
   return async (agentId) => {
+    // The id comes from the log; letters, digits, - and _ only, so it can't climb out of `dir`.
+    if (!/^[\w-]+$/.test(agentId)) return undefined;
     const path = join(dir, `agent-${agentId}.jsonl`);
     try {
       await access(path);
