@@ -1,4 +1,4 @@
-# AgentReplay — Product Requirements (Phase 1: Local MVP)
+# Crafter Replay — Product Requirements (Phase 1: Local MVP)
 
 > Status: Draft v1 · Owner: Product · Scope: Phase 1 only. Later phases live in `FEATURES.md`.
 
@@ -8,11 +8,11 @@ AI coding agents (Claude Code first) now work for 10–60+ minutes per task. Whe
 
 ## 2. Solution (one sentence)
 
-`npx agentreplay` turns a local Claude Code session log into a replayable, scrubbable timeline in the browser, plus a shareable recap card image — all processed on the user's own machine.
+`npx crafter-replay` turns a local Claude Code session log into a replayable, scrubbable timeline in the browser, plus a shareable recap card image — all processed on the user's own machine.
 
 ## 3. Target users (Phase 1)
 
-| Persona | Need | What they do with AgentReplay |
+| Persona | Need | What they do with Crafter Replay |
 |---|---|---|
 | **Solo dev / indie hacker** (primary) | Understand and show what the agent did | Replays sessions, posts recap cards |
 | **Learner / junior dev** | Learn *how* the agent solved a problem | Steps through reads, edits, errors |
@@ -40,7 +40,7 @@ Out of scope for Phase 1: teams, managers, agencies, educators (Phase 2+).
 ## 5. User stories and acceptance criteria
 
 **US-1 · Launch**
-As a developer, I run `npx agentreplay` and pick a session from a list.
+As a developer, I run `npx crafter-replay` and pick a session from a list.
 - Lists sessions newest-first with title (first user prompt, ≤60 chars), project folder, duration, date.
 - Arrow keys + Enter to pick; `--latest` skips the picker.
 - If no sessions found: friendly message with the folder path we looked in, exit code 1.
@@ -69,9 +69,9 @@ As a developer, I see a summary for the session.
 **US-5 · Recap card**
 As a creator, I export a recap card.
 - 1080×1920 PNG, 3 themes (Terminal, Violet, Clay).
-- Shows: title (editable), agent + duration, event strip, 4 stats, "biggest moment", `agentreplay` wordmark.
+- Shows: title (editable), agent + duration, event strip, 4 stats, "biggest moment", `crafter-replay` wordmark.
 - Never shows code or file contents. File names hidden by default (toggle).
-- `npx agentreplay --card` exports the PNG for the latest session without opening the UI.
+- `npx crafter-replay --card` exports the PNG for the latest session without opening the UI.
 
 **US-6 · Privacy**
 As a developer, I trust that my code stays local.
@@ -112,4 +112,4 @@ As a developer, I trust that my code stays local.
 - [ ] Redaction tests pass on the secrets fixture.
 - [ ] External dev review of redaction + npm publish setup.
 - [ ] README with GIF, privacy statement, and supported versions.
-- [ ] Published to npm as `agentreplay` (name checked), v0.1.0.
+- [ ] Published to npm as `crafter-replay` (name checked), v0.1.0.

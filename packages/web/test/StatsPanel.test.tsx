@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { join } from "node:path";
-import { parse, type ReplaySession } from "@agentreplay/core";
-import { formatDuration } from "@agentreplay/core/format";
+import { parse, type ReplaySession } from "@crafter-replay/core";
+import { formatDuration } from "@crafter-replay/core/format";
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import { StatsPanel } from "../src/components/StatsPanel";

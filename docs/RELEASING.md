@@ -15,7 +15,7 @@ and workflow that built it.
       Name `NPM_TOKEN`, value: the token.
 3. After the first release, switch to **trusted publishing**, which needs no token at all:
    1. On npm: the `crafter-replay` package → Settings → Trusted Publisher → GitHub Actions.
-      Organization or user `mujtaba-harn`, repository `AgentReplay`, workflow file
+      Organization or user `mujtaba-harn`, repository `Crafter Replay`, workflow file
       `release.yml`.
    2. Delete the `NPM_TOKEN` secret on GitHub and revoke the token on npm.
 

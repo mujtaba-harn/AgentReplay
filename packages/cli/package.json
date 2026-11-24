@@ -43,8 +43,8 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
-    "@agentreplay/core": "workspace:*",
-    "@agentreplay/web": "workspace:*",
+    "@crafter-replay/core": "workspace:*",
+    "@crafter-replay/web": "workspace:*",
     "@types/node": "^22.20.5",
     "tsup": "^9.0.0",
     "typescript": "^7.0.2",

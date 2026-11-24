@@ -1,6 +1,6 @@
 // PRD US-4 stats and the US-6 privacy notice. Every number comes from core's stats.ts as-is.
-import type { SessionStats, SharedSession } from "@agentreplay/core";
-import { formatDuration } from "@agentreplay/core/format";
+import type { SessionStats, SharedSession } from "@crafter-replay/core";
+import { formatDuration } from "@crafter-replay/core/format";
 import { formatCost, formatCount } from "../format";
 
 const plural = (n: number, word: string): string => `${n} ${word}${n === 1 ? "" : "s"}`;

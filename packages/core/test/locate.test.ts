@@ -17,7 +17,7 @@ function touch(...parts: string[]): string {
 }
 
 beforeEach(() => {
-  home = mkdtempSync(join(tmpdir(), "agentreplay-locate-"));
+  home = mkdtempSync(join(tmpdir(), "crafter-replay-locate-"));
 });
 
 afterEach(() => {

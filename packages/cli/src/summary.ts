@@ -1,6 +1,6 @@
 // The calm terminal output while a replay is running (F1.11, PRD US-6).
 import { styleText } from "node:util";
-import type { SessionSummary } from "@agentreplay/core";
+import type { SessionSummary } from "@crafter-replay/core";
 import { sessionDetails } from "./picker.js";
 
 export type BrowserState = "opened" | "skipped" | "failed";

@@ -4,7 +4,7 @@ Real sessions recorded on Windows with Claude Code 2.1.330 on 22 Nov 2026. Use t
 
 **Cleaned:** email → `demo-user@example.com`, Windows user folder → `demo-user`, account and organization IDs → all zeros.
 
-**Trimmed for the public repo.** The full logs live in `../fixtures-private/`, which is git-ignored and exists only on the maintainer's machine. The files here are built from them with `pnpm --filter @agentreplay/core fixtures:public`:
+**Trimmed for the public repo.** The full logs live in `../fixtures-private/`, which is git-ignored and exists only on the maintainer's machine. The files here are built from them with `pnpm --filter @crafter-replay/core fixtures:public`:
 
 - `user`, `assistant` and `cost-state` lines are kept exactly as recorded.
 - `attachment`, `api-request`, `api-request-shape` and `api-request-blob` lines (Claude Code's system prompt, tool descriptions, request copies) are replaced one-for-one by a made-up line of the same shape: same keys, IDs, timestamps, working folder and platform, every other string set to `"stub"`, lists cut to one item. The parser still meets them and must skip them.

@@ -116,7 +116,7 @@ describe("redact survives random wrapping", () => {
 describe("redaction inside parsing", () => {
   let dir: string;
   beforeAll(() => {
-    dir = mkdtempSync(join(tmpdir(), "agentreplay-redact-"));
+    dir = mkdtempSync(join(tmpdir(), "crafter-replay-redact-"));
   });
   afterAll(() => {
     rmSync(dir, { recursive: true, force: true });

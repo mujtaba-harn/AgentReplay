@@ -1,4 +1,4 @@
-import type { SharedSession } from "@agentreplay/core";
+import type { SharedSession } from "@crafter-replay/core";
 import { useReducer } from "react";
 import { usePlaybackKeys, usePlaybackTimer } from "../playback-hooks";
 import { initialPlayback, playbackReducer } from "../state";

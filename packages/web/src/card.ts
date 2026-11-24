@@ -1,7 +1,7 @@
 // Data for the recap card (PRD US-5). Only counts, step kinds and (if asked) file names:
 // never code or file contents.
-import type { EventKind, ReplayEvent, SharedSession } from "@agentreplay/core";
-import { formatDuration } from "@agentreplay/core/format";
+import type { EventKind, ReplayEvent, SharedSession } from "@crafter-replay/core";
+import { formatDuration } from "@crafter-replay/core/format";
 import { formatCost, formatCount } from "./format";
 
 export type BarKind = "edit" | "command" | "error" | "other";

@@ -2,7 +2,7 @@
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { parse, type ReplayEvent } from "@agentreplay/core";
+import { parse, type ReplayEvent } from "@crafter-replay/core";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 // Fake keys are built at runtime, so the repo never stores key-shaped strings.

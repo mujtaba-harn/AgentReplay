@@ -2,7 +2,7 @@
 // and sessions are looked up by id among the ones we located — the browser never names a path.
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import type { AddressInfo } from "node:net";
-import { parse, type ReplaySession, type SessionSummary } from "@agentreplay/core";
+import { parse, type ReplaySession, type SessionSummary } from "@crafter-replay/core";
 import { staticFile } from "./static.js";
 
 export interface ServerOptions {

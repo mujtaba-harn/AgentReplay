@@ -1,5 +1,5 @@
 // PRD US-3: an error shows "the next step that resolved it, if any".
-import type { ReplayEvent } from "@agentreplay/core";
+import type { ReplayEvent } from "@crafter-replay/core";
 
 // core gives an error event the id of the tool call that failed, plus this suffix.
 const ERROR_SUFFIX = "-error";

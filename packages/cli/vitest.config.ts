@@ -4,6 +4,6 @@ import { defineConfig } from "vitest/config";
 // The other entries are Vite's default server conditions, which a custom list would otherwise replace.
 export default defineConfig({
   ssr: {
-    resolve: { conditions: ["@agentreplay/source", "module", "node", "development|production"] },
+    resolve: { conditions: ["@crafter-replay/source", "module", "node", "development|production"] },
   },
 });

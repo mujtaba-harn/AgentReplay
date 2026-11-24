@@ -1,4 +1,4 @@
-import type { EventKind, ReplaySession } from "@agentreplay/core";
+import type { EventKind, ReplaySession } from "@crafter-replay/core";
 import { describe, expect, it } from "vitest";
 import {
   initialPlayback,

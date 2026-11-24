@@ -1,6 +1,6 @@
 import { fileURLToPath } from "node:url";
-import type { SessionSummary } from "@agentreplay/core";
 import { cancel } from "@clack/prompts";
+import type { SessionSummary } from "@crafter-replay/core";
 import packageJson from "../package.json" with { type: "json" };
 import { type CliOptions, HELP_TEXT, parseCliArgs } from "./args.js";
 import { openBrowser } from "./browser.js";

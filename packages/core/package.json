@@ -1,21 +1,21 @@
 {
-  "name": "@agentreplay/core",
+  "name": "@crafter-replay/core",
   "version": "0.0.0",
   "private": true,
   "type": "module",
   "exports": {
     ".": {
-      "@agentreplay/source": "./src/index.ts",
+      "@crafter-replay/source": "./src/index.ts",
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
     "./timeline": {
-      "@agentreplay/source": "./src/group.ts",
+      "@crafter-replay/source": "./src/group.ts",
       "types": "./dist/group.d.ts",
       "default": "./dist/group.js"
     },
     "./format": {
-      "@agentreplay/source": "./src/format.ts",
+      "@crafter-replay/source": "./src/format.ts",
       "types": "./dist/format.d.ts",
       "default": "./dist/format.js"
     }

@@ -1,4 +1,4 @@
-# AgentReplay — Architecture
+# Crafter Replay — Architecture
 
 > Audience: the coding agent and any engineer reviewing the plan. Covers Phase 1 in detail and shows where later phases plug in.
 
@@ -17,7 +17,7 @@
                          User's computer
 ┌──────────────────────────────────────────────────────────────────┐
 │                                                                  │
-│  Terminal: npx agentreplay                                       │
+│  Terminal: npx crafter-replay                                       │
 │        │                                                         │
 │        ▼                                                         │
 │  ┌────────────┐   uses   ┌─────────────────────────────────────┐ │
@@ -33,13 +33,13 @@
 │  │  (React)   │  Browser at http://127.0.0.1:<port>              │
 │  └────────────┘                                                  │
 └──────────────────────────────────────────────────────────────────┘
-        Phase 2+: web ──(user clicks Share)──▶ agentreplay.dev API
+        Phase 2+: web ──(user clicks Share)──▶ crafter-replay.dev API
 ```
 
 ## 3. Repository layout (monorepo)
 
 ```
-agentreplay/
+crafter-replay/
 ├─ packages/
 │  ├─ core/                 # pure TS, no UI, no console output
 │  │  ├─ src/
@@ -84,7 +84,7 @@ agentreplay/
 └─ tsconfig.base.json
 ```
 
-The published npm package is **`agentreplay`** = `cli` bundled with `core` and the built `web` assets. `core` can later be published separately as `@agentreplay/core` for the VS Code extension and contributors.
+The published npm package is **`crafter-replay`** = `cli` bundled with `core` and the built `web` assets. `core` can later be published separately as `@crafter-replay/core` for the VS Code extension and contributors.
 
 ## 4. Tech stack and why
 
@@ -204,7 +204,7 @@ Runs inside `core` **before** any event leaves `parse()`. The UI never receives 
 ## 8. CLI flow
 
 ```
-npx agentreplay [--latest] [--card] [--port N] [--no-open] [--path FILE]
+npx crafter-replay [--latest] [--card] [--port N] [--no-open] [--path FILE]
   1. adapters.locate()          → list of files
   2. summarize() each (in parallel, limit 8) → sort by startedAt desc
   3. picker (unless --latest / --path)

@@ -14,9 +14,9 @@ export default defineConfig({
   banner: { js: "#!/usr/bin/env node" },
   // core is not published on its own, so it ships inside this file. zod, clack and open stay
   // regular dependencies (open must: it runs a helper script that sits next to its own files).
-  noExternal: ["@agentreplay/core"],
+  noExternal: ["@crafter-replay/core"],
   esbuildOptions(options) {
-    options.conditions = ["@agentreplay/source"];
+    options.conditions = ["@crafter-replay/source"];
   },
   // The server serves the UI from dist/web (ARCHITECTURE.md §3: cli bundles the built web assets).
   onSuccess: async () => {

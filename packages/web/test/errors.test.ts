@@ -1,4 +1,4 @@
-import type { EventKind, ReplayEvent } from "@agentreplay/core";
+import type { EventKind, ReplayEvent } from "@crafter-replay/core";
 import { describe, expect, it } from "vitest";
 import { fixedBy } from "../src/errors";
 

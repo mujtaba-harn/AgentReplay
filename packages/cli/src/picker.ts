@@ -1,7 +1,7 @@
 // The interactive session list (US-1): arrows + Enter, Ctrl+C cancels.
 import { styleText } from "node:util";
-import { formatDuration, type SessionSummary } from "@agentreplay/core";
 import { isCancel, select } from "@clack/prompts";
+import { formatDuration, type SessionSummary } from "@crafter-replay/core";
 
 const MINUTE = 60_000;
 const HOUR = 60 * MINUTE;

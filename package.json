@@ -1,5 +1,5 @@
 {
-  "name": "agentreplay-monorepo",
+  "name": "crafter-replay-monorepo",
   "private": true,
   "type": "module",
   "engines": {

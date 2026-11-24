@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import type { EventKind, ReplayEvent, ReplaySession } from "@agentreplay/core";
+import type { EventKind, ReplayEvent, ReplaySession } from "@crafter-replay/core";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { VirtuosoMockContext } from "react-virtuoso";

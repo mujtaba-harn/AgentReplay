@@ -1,4 +1,4 @@
-import type { SharedSession } from "@agentreplay/core";
+import type { SharedSession } from "@crafter-replay/core";
 import { useRef, useState } from "react";
 import { copyCard, downloadCard } from "../export";
 import { CardEditor } from "./CardEditor";

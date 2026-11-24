@@ -1,6 +1,6 @@
 // Talks to the local Crafter Replay server (ARCHITECTURE.md §8). Every failure becomes a named
 // problem, so the UI can always show a sentence and a next step instead of a blank page.
-import type { SharedSession } from "@agentreplay/core";
+import type { SharedSession } from "@crafter-replay/core";
 
 export type Problem = "noSession" | "unreachable" | "notFound" | "unreadable" | "unexpected";
 

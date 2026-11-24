@@ -1,4 +1,4 @@
-import type { SharedSession } from "@agentreplay/core";
+import type { SharedSession } from "@crafter-replay/core";
 import { useEffect, useState } from "react";
 import { loadReplay, type Problem, sessionIdFrom } from "./api";
 

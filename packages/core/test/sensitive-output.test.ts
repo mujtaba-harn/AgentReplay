@@ -10,7 +10,7 @@ const ENV_CONTENTS = "DB_PASSWORD=correcthorsebatterystaple\nAPI_HOST=internal.e
 
 let dir: string;
 beforeEach(() => {
-  dir = mkdtempSync(join(tmpdir(), "agentreplay-sensitive-"));
+  dir = mkdtempSync(join(tmpdir(), "crafter-replay-sensitive-"));
 });
 afterEach(() => {
   rmSync(dir, { recursive: true, force: true });

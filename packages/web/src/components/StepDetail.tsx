@@ -1,5 +1,5 @@
 // PRD US-3: what happened in one step. Shows only fields core already redacted.
-import type { EventKind, ReplayEvent } from "@agentreplay/core";
+import type { EventKind, ReplayEvent } from "@crafter-replay/core";
 import { lazy, Suspense } from "react";
 import { fixedBy } from "../errors";
 import { formatClock } from "../format";

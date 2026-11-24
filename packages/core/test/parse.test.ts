@@ -15,7 +15,7 @@ function costState(file: string): { totalCostUSD: number; totalLinesAdded: numbe
 describe("parse (public API)", () => {
   let dir: string;
   beforeAll(() => {
-    dir = mkdtempSync(join(tmpdir(), "agentreplay-parse-"));
+    dir = mkdtempSync(join(tmpdir(), "crafter-replay-parse-"));
   });
   afterAll(() => {
     rmSync(dir, { recursive: true, force: true });

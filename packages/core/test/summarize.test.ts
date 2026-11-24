@@ -78,7 +78,7 @@ describe("summarize on unusual files", () => {
   });
 
   beforeEach(() => {
-    dir = mkdtempSync(join(tmpdir(), "agentreplay-summarize-"));
+    dir = mkdtempSync(join(tmpdir(), "crafter-replay-summarize-"));
   });
   afterEach(() => {
     rmSync(dir, { recursive: true, force: true });

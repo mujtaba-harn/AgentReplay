@@ -1,6 +1,6 @@
 // Playback state: one reducer, no store library (ARCHITECTURE.md §9). Indexes always point into
 // session.events; the filter only decides which of those steps can be visited.
-import type { EventKind, ReplayEvent, SharedSession } from "@agentreplay/core";
+import type { EventKind, ReplayEvent, SharedSession } from "@crafter-replay/core";
 
 export type Filter = "all" | "edits" | "commands" | "errors";
 export type Speed = 1 | 5 | 20;

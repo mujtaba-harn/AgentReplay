@@ -1,9 +1,9 @@
 # Security and privacy review checklist (F1.25)
 
-For the outside developer reviewing AgentReplay before its first npm release. Please read
+For the outside developer reviewing Crafter Replay before its first npm release. Please read
 `docs/PRD.md` (US-6) and `docs/ARCHITECTURE.md` §7–§8 first; they state what we promise.
 
-**What AgentReplay is:** `npx agentreplay` reads Claude Code's local session logs
+**What Crafter Replay is:** `npx crafter-replay` reads Claude Code's local session logs
 (`~/.claude/projects/**/*.jsonl`), parses and redacts them in `packages/core`, and serves a replay
 page from a local HTTP server in `packages/cli`. The page (`packages/web`) can export a
 1080×1920 PNG "recap card" meant to be posted publicly.
@@ -21,7 +21,7 @@ page from a local HTTP server in `packages/cli`. The page (`packages/web`) can e
 ```sh
 pnpm install
 pnpm check && pnpm test && pnpm build
-pnpm --filter agentreplay smoke        # packs, installs into a temp folder, runs a replay
+pnpm --filter crafter-replay smoke        # packs, installs into a temp folder, runs a replay
 node packages/cli/dist/index.js --latest
 ```
 
@@ -104,7 +104,7 @@ Please check:
       enough?
 - [ ] The PNG export (`html-to-image`, `skipFonts: true`) makes no network requests. Check the
       browser's network panel while exporting.
-- [ ] The downloaded file name is `agentreplay-card-YYYY-MM-DD.png`, with no project names.
+- [ ] The downloaded file name is `crafter-replay-card-YYYY-MM-DD.png`, with no project names.
 
 ## 4. Package and publishing (`packages/cli/package.json`, `tsup.config.ts`, CI)
 

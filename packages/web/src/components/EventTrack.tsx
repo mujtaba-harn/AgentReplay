@@ -1,5 +1,5 @@
-import type { ReplayEvent } from "@agentreplay/core";
-import { compressedTimes } from "@agentreplay/core/timeline";
+import type { ReplayEvent } from "@crafter-replay/core";
+import { compressedTimes } from "@crafter-replay/core/timeline";
 import { useMemo } from "react";
 import { type Filter, isVisible } from "../state";
 

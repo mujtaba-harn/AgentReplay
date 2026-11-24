@@ -1,4 +1,4 @@
-import type { ReplaySession } from "@agentreplay/core";
+import type { ReplaySession } from "@crafter-replay/core";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { ReplayScreen } from "../src/App";

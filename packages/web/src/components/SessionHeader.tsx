@@ -1,5 +1,5 @@
-import type { SharedSession } from "@agentreplay/core";
-import { formatDuration } from "@agentreplay/core/format";
+import type { SharedSession } from "@crafter-replay/core";
+import { formatDuration } from "@crafter-replay/core/format";
 
 const steps = (count: number): string => (count === 1 ? "1 step" : `${count} steps`);
 

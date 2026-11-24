@@ -1,5 +1,5 @@
 // Rebuilds test/fixtures/*.jsonl from the full logs in test/fixtures-private/.
-// Run: pnpm --filter @agentreplay/core fixtures:public
+// Run: pnpm --filter @crafter-replay/core fixtures:public
 import { readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";

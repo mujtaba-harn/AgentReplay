@@ -1,7 +1,7 @@
 // PRD US-5: the 1080×1920 recap card. Shows counts and step kinds only — never code or file
 // contents, and file names only when the user turns them on.
-import type { SharedSession } from "@agentreplay/core";
-import { formatDuration } from "@agentreplay/core/format";
+import type { SharedSession } from "@crafter-replay/core";
+import { formatDuration } from "@crafter-replay/core/format";
 import { type Ref, useMemo } from "react";
 import {
   type BarKind,

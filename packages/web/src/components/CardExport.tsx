@@ -1,5 +1,5 @@
 // `npx crafter-replay --card` opens this page: it draws the card, downloads it and tells the CLI.
-import type { SharedSession } from "@agentreplay/core";
+import type { SharedSession } from "@crafter-replay/core";
 import { useEffect, useRef, useState } from "react";
 import { reportCardDone } from "../api";
 import { downloadCard } from "../export";

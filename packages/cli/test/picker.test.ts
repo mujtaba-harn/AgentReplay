@@ -1,5 +1,5 @@
 import { stripVTControlCharacters } from "node:util";
-import type { SessionSummary } from "@agentreplay/core";
+import type { SessionSummary } from "@crafter-replay/core";
 import { describe, expect, it } from "vitest";
 import { fitTitle, formatAge, sessionDetails, sessionRow } from "../src/picker.js";
 

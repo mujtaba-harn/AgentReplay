@@ -1,4 +1,4 @@
-import type { EventKind, ReplayEvent, ReplaySession } from "@agentreplay/core";
+import type { EventKind, ReplayEvent, ReplaySession } from "@crafter-replay/core";
 import { describe, expect, it } from "vitest";
 import {
   stripBars as barsOf,

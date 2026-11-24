@@ -63,7 +63,7 @@ describe("readSession with a subagent (decision 4d: summary only)", () => {
 describe("readSession finds subagent logs on disk", () => {
   let dir: string;
   beforeEach(() => {
-    dir = mkdtempSync(join(tmpdir(), "agentreplay-session-"));
+    dir = mkdtempSync(join(tmpdir(), "crafter-replay-session-"));
   });
   afterEach(() => {
     rmSync(dir, { recursive: true, force: true });

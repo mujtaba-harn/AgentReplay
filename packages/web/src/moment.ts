@@ -1,6 +1,6 @@
 // F1.22: the card's "biggest moment" — first fixed error › largest edit › longest command.
 // Deterministic, and worded from counts and kinds only: never code, commands or folders.
-import type { EventKind, ReplayEvent } from "@agentreplay/core";
+import type { EventKind, ReplayEvent } from "@crafter-replay/core";
 import { failedStep, fixedBy } from "./errors";
 
 export interface Moment {

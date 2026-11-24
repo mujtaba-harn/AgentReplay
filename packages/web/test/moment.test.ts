@@ -1,6 +1,6 @@
 import { readdirSync } from "node:fs";
 import { join } from "node:path";
-import { parse, type ReplayEvent } from "@agentreplay/core";
+import { parse, type ReplayEvent } from "@crafter-replay/core";
 import { describe, expect, it } from "vitest";
 import { biggestMoment, formatSpan } from "../src/moment";
 

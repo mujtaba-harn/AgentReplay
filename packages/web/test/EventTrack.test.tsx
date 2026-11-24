@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import type { EventKind, ReplayEvent } from "@agentreplay/core";
+import type { EventKind, ReplayEvent } from "@crafter-replay/core";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { EventTrack, markerPositions } from "../src/components/EventTrack";

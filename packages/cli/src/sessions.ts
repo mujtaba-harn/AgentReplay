@@ -6,7 +6,7 @@ import {
   type SessionSummary,
   sessionsFolder,
   summarize,
-} from "@agentreplay/core";
+} from "@crafter-replay/core";
 
 export interface FoundSessions {
   /** Where we looked, for the "nothing found" message. */

@@ -1,5 +1,5 @@
 // Loaded on demand (React.lazy): the diff library is only needed when an edit is opened.
-import type { ReplayEvent } from "@agentreplay/core";
+import type { ReplayEvent } from "@crafter-replay/core";
 import { type Change, diffLines } from "diff";
 import { useMemo } from "react";
 import { ShowMore } from "./ShowMore";

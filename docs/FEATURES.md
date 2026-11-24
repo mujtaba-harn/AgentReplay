@@ -1,4 +1,4 @@
-# AgentReplay — Features by Phase
+# Crafter Replay — Features by Phase
 
 > Each feature has an ID, a size (S ≈ ≤1 day, M ≈ 2–3 days, L ≈ 4–5 days with a coding agent), and a **Done when** check. Build in order. Do not start a phase until the previous one meets its exit criteria.
 
@@ -23,7 +23,7 @@ Goal: an empty project that is easy to build on and hard to break.
 
 ## Phase 1 — Local MVP (≈ 3–4 weeks)
 
-Goal: `npx agentreplay` works end-to-end on real sessions. Full spec in `PRD.md`.
+Goal: `npx crafter-replay` works end-to-end on real sessions. Full spec in `PRD.md`.
 
 ### 1A · Core engine
 | ID | Feature | Size | Done when |
@@ -43,7 +43,7 @@ Goal: `npx agentreplay` works end-to-end on real sessions. Full spec in `PRD.md`
 | F1.9 | Session picker (clack), newest first, empty state message | S | Works with arrows/Enter; Ctrl+C exits cleanly |
 | F1.10 | Local server: 127.0.0.1, free port, Host check, 3 routes, static files | M | Requests from other hosts rejected; arbitrary paths impossible |
 | F1.11 | Open browser + calm terminal summary + privacy line | S | Matches terminal mockup |
-| F1.12 | Bundle with tsup; `npm pack` produces package < 5 MB | S | `npx ./agentreplay-0.1.0.tgz` works on a clean machine |
+| F1.12 | Bundle with tsup; `npm pack` produces package < 5 MB | S | `npx ./crafter-replay-0.1.0.tgz` works on a clean machine |
 
 ### 1C · Web UI
 | ID | Feature | Size | Done when |
@@ -69,7 +69,7 @@ Goal: `npx agentreplay` works end-to-end on real sessions. Full spec in `PRD.md`
 |---|---|---|---|
 | F1.24 | README: GIF, install, flags, privacy statement, supported Claude Code versions | S | A non-dev can follow it |
 | F1.25 | External developer review of redaction + server security + publish config | S | Review notes resolved |
-| F1.26 | Publish `agentreplay@0.1.0` to npm (2FA on, provenance on) | S | `npx agentreplay` works from a fresh machine |
+| F1.26 | Publish `crafter-replay@0.1.0` to npm (2FA on, provenance on) | S | `npx crafter-replay` works from a fresh machine |
 
 **Exit criteria:** PRD release checklist complete. 10 outside testers have run it on their own sessions.
 
@@ -86,11 +86,11 @@ Goal: replays travel; more developers can use it.
 | F2.3 | `packages/server`: API for creating/reading shared replays (Hono + Postgres) | L | Upload → link → view works |
 | F2.4 | Share flow: preview of exactly what uploads, redaction review, confirm | M | Nothing uploads without explicit confirm |
 | F2.5 | Share links: unlisted by default, expiry (7/30 days/never), delete | M | Deleted link returns 404 everywhere |
-| F2.6 | Public replay page at `agentreplay.dev/s/:id` (same web UI, read-only) | M | Loads < 2 s on mobile |
+| F2.6 | Public replay page at `crafter-replay.dev/s/:id` (same web UI, read-only) | M | Loads < 2 s on mobile |
 | F2.7 | OG link preview images (1200×630) via Satori | S | Correct preview in X, LinkedIn, WhatsApp, Discord |
 | F2.8 | Syntax highlighting in diffs (shiki, lazy-loaded) | S | Bundle budget still met |
 | F2.9 | Markdown rendering for prompts/replies | S | Safe (no raw HTML) |
-| F2.10 | Landing page at agentreplay.dev | M | Explains product in 5 seconds; links to npm + GitHub |
+| F2.10 | Landing page at crafter-replay.dev | M | Explains product in 5 seconds; links to npm + GitHub |
 
 **Exit criteria:** 100 shared replays created by people other than you.
 
@@ -100,7 +100,7 @@ Goal: replays travel; more developers can use it.
 
 | ID | Feature | Size | Done when |
 |---|---|---|---|
-| F3.1 | Accounts (GitHub sign-in) + `npx agentreplay login` | M | CLI stores token in OS keychain |
+| F3.1 | Accounts (GitHub sign-in) + `npx crafter-replay login` | M | CLI stores token in OS keychain |
 | F3.2 | Pro plan via Stripe: private links, unlimited history, custom card branding | L | Upgrade/downgrade/cancel all work |
 | F3.3 | Weekly recap card (sessions, lines, cost, streak) | M | `--week` exports 4:5 and 9:16 |
 | F3.4 | Video export: 15 s vertical MP4 of a replay (Remotion) | L | Exports < 60 s for a typical session |

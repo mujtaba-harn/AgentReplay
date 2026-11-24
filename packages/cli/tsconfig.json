@@ -3,7 +3,7 @@
   "compilerOptions": {
     "types": ["node"],
     // Type-check against core's source so `pnpm check` works before core is built.
-    "customConditions": ["@agentreplay/source"],
+    "customConditions": ["@crafter-replay/source"],
     "noEmit": true
   },
   "include": ["src", "test", "scripts"]

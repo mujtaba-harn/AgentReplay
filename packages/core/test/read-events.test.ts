@@ -126,7 +126,7 @@ describe("readEvents on real fixtures", () => {
 describe("readEvents on damaged files", () => {
   let dir: string;
   beforeEach(() => {
-    dir = mkdtempSync(join(tmpdir(), "agentreplay-read-"));
+    dir = mkdtempSync(join(tmpdir(), "crafter-replay-read-"));
   });
   afterEach(() => {
     rmSync(dir, { recursive: true, force: true });

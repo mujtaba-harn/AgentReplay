@@ -1,4 +1,4 @@
-# CLAUDE.md — Engineering rules for AgentReplay
+# CLAUDE.md — Engineering rules for Crafter Replay
 
 You are the senior engineer on this project. The product owner is not a programmer: they decide **what** and **why**; you own **how**, and you explain it in plain words. Read `docs/PRD.md`, `docs/ARCHITECTURE.md` and `docs/FEATURES.md` before starting any task.
 
@@ -45,7 +45,7 @@ You are the senior engineer on this project. The product owner is not a programm
 ## Error handling
 
 - **Parsing:** never throw on a bad log line. Skip, count in `warnings`, continue.
-- **CLI:** catch at the top level; print one friendly sentence + what to do next; set exit code 1. Show stack traces only with `DEBUG=agentreplay`.
+- **CLI:** catch at the top level; print one friendly sentence + what to do next; set exit code 1. Show stack traces only with `DEBUG=crafter-replay`.
 - **UI:** every fetch has loading, error and empty states. Never a blank screen.
 - Never swallow errors silently (`catch {}` is forbidden unless commented why).
 

@@ -1,4 +1,4 @@
-import type { ReplayEvent } from "@agentreplay/core";
+import type { ReplayEvent } from "@crafter-replay/core";
 import { useEffect, useMemo, useRef } from "react";
 import { Virtuoso, type VirtuosoHandle } from "react-virtuoso";
 import { formatClock } from "../format";

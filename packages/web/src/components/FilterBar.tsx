@@ -1,4 +1,4 @@
-import type { ReplayEvent } from "@agentreplay/core";
+import type { ReplayEvent } from "@crafter-replay/core";
 import { useMemo } from "react";
 import { FILTERS, type Filter, isVisible } from "../state";
 
