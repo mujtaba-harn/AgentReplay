@@ -37,7 +37,7 @@ describe("ReplayScreen", () => {
 
   it.each<[Problem, string]>([
     ["noSession", "No session chosen."],
-    ["unreachable", "Can't reach AgentReplay."],
+    ["unreachable", "Can't reach Crafter Replay."],
     ["notFound", "This session isn't available."],
     ["unreadable", "This session couldn't be read."],
     ["unexpected", "Something unexpected came back."],
@@ -46,7 +46,7 @@ describe("ReplayScreen", () => {
 
     expect(html).toContain(title);
     expect(html).toContain('role="alert"');
-    expect(html).toMatch(/npx agentreplay|Claude Code version/);
+    expect(html).toMatch(/npx crafter-replay|Claude Code version/);
   });
 
   it("shows the session's title, project, duration and step count", () => {

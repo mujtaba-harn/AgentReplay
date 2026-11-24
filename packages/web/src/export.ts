@@ -26,7 +26,7 @@ const pad = (n: number): string => String(n).padStart(2, "0");
 /** Named after the day only: no project or file names leak through the file name. */
 export function cardFileName(day: Date): string {
   const date = `${day.getFullYear()}-${pad(day.getMonth() + 1)}-${pad(day.getDate())}`;
-  return `agentreplay-card-${date}.png`;
+  return `crafter-replay-card-${date}.png`;
 }
 
 /** Saves the card through the browser's normal download; returns the file name used. */

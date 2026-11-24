@@ -31,7 +31,7 @@ jobs:
       - run: pnpm test
       - run: pnpm build
       - name: Smoke-test the packed CLI
-        run: pnpm --filter agentreplay smoke
+        run: pnpm --filter crafter-replay smoke
 
       - name: Check the tag matches the package version
         run: |
@@ -44,9 +44,9 @@ jobs:
       # pnpm packs (it copies README/LICENSE in and resolves workspace links); npm publishes,
       # because npm is what records provenance.
       - name: Pack
-        run: pnpm --filter agentreplay pack --pack-destination "$RUNNER_TEMP"
+        run: pnpm --filter crafter-replay pack --pack-destination "$RUNNER_TEMP"
 
       - name: Publish
-        run: npm publish "$RUNNER_TEMP"/agentreplay-*.tgz --access public --provenance
+        run: npm publish "$RUNNER_TEMP"/crafter-replay-*.tgz --access public --provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -1,4 +1,4 @@
-# AgentReplay
+# Crafter Replay
 
 [![CI](https://github.com/mujtaba-harn/AgentReplay/actions/workflows/ci.yml/badge.svg)](https://github.com/mujtaba-harn/AgentReplay/actions/workflows/ci.yml)
 
@@ -17,14 +17,14 @@ Everything runs on your own computer. **Data never leaves your computer.**
 You need:
 
 1. **Node.js 22 or newer.** Check with `node --version`. If it's missing or older, install it from [nodejs.org](https://nodejs.org).
-2. **At least one Claude Code session** on this computer. AgentReplay reads the logs Claude Code already keeps in `~/.claude/projects` (or in `CLAUDE_CONFIG_DIR`, if you set it).
+2. **At least one Claude Code session** on this computer. Crafter Replay reads the logs Claude Code already keeps in `~/.claude/projects` (or in `CLAUDE_CONFIG_DIR`, if you set it).
 
 ## Use it
 
 Open a terminal and run:
 
 ```sh
-npx agentreplay
+npx crafter-replay
 ```
 
 1. A list of your sessions appears, newest first. Move with **↑ / ↓** and press **Enter**.
@@ -33,7 +33,7 @@ npx agentreplay
 4. Click **Recap card** to make a card, then **Download PNG** or **Copy image**.
 5. When you're done, go back to the terminal and press **Ctrl+C**.
 
-The first run downloads AgentReplay, which takes a few seconds.
+The first run downloads Crafter Replay, which takes a few seconds.
 
 ## Options
 
@@ -47,13 +47,13 @@ The first run downloads AgentReplay, which takes a few seconds.
 | `-h`, `--help` | Show all options |
 | `-v`, `--version` | Show the version |
 
-Example: `npx agentreplay --card` saves today's card to your browser's Downloads folder without opening the replay.
+Example: `npx crafter-replay --card` saves today's card to your browser's Downloads folder without opening the replay.
 
 ## Privacy
 
-AgentReplay is built so your code stays private:
+Crafter Replay is built so your code stays private:
 
-- **Nothing is uploaded.** There is no account, no telemetry and no analytics. The only network traffic is between your browser and AgentReplay on your own computer.
+- **Nothing is uploaded.** There is no account, no telemetry and no analytics. The only network traffic is between your browser and Crafter Replay on your own computer.
 - **The page is only reachable from your computer.** It listens on `127.0.0.1`, rejects requests that claim to come from anywhere else, and can only show sessions it found itself — never a file a web page asks for.
 - **Likely secrets are hidden before anything is shown**: API keys (Anthropic, OpenAI, AWS, GitHub, Stripe and more), passwords in links, private keys, and long random-looking values. The page tells you how many it hid.
 - **Sensitive files stay hidden.** Changes to `.env` files, keys and credential files are never shown.
@@ -63,7 +63,7 @@ No automatic check is perfect. Look at a card before you post it.
 
 ## Supported versions
 
-- **Claude Code**: tested with 2.1.328 – 2.1.330. Claude Code's log format isn't documented and can change; if a newer version adds something AgentReplay doesn't recognise, that line is skipped and the page tells you how many were skipped.
+- **Claude Code**: tested with 2.1.328 – 2.1.330. Claude Code's log format isn't documented and can change; if a newer version adds something Crafter Replay doesn't recognise, that line is skipped and the page tells you how many were skipped.
 - **Systems**: Windows, macOS and Linux, with Node.js 22 or 24.
 
 ## If something goes wrong
@@ -74,9 +74,9 @@ No automatic check is perfect. Look at a card before you post it.
 | "Port N is already in use." | Leave out `--port`, or pick another number. |
 | The browser didn't open | Copy the address printed in the terminal into your browser. |
 | "The session list needs an interactive terminal." | Use `--latest` or `--path FILE`. |
-| "Can't reach AgentReplay." in the browser | The terminal was closed. Run `npx agentreplay` again. |
+| "Can't reach Crafter Replay." in the browser | The terminal was closed. Run `npx crafter-replay` again. |
 
-Still stuck? Run with `DEBUG=agentreplay` to see details, and [open an issue](https://github.com/mujtaba-harn/AgentReplay/issues).
+Still stuck? Run with `DEBUG=crafter-replay` to see details, and [open an issue](https://github.com/mujtaba-harn/AgentReplay/issues).
 
 ## For developers
 

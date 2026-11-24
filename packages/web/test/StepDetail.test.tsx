@@ -110,7 +110,7 @@ describe("StepDetail", () => {
 
 describe("StepDetail with the secrets session", () => {
   it("never shows a secret in any step", async () => {
-    const dir = mkdtempSync(join(tmpdir(), "agentreplay-detail-"));
+    const dir = mkdtempSync(join(tmpdir(), "crafter-replay-detail-"));
     try {
       const path = join(dir, "secrets.jsonl");
       const raw = readFileSync(join(FIXTURES, "08-secrets-fake.jsonl"), "utf8");

@@ -16,21 +16,21 @@ export function Notice({ title, hint, tone = "calm" }: NoticeProps) {
   );
 }
 
-const RUN_AGAIN = "Run npx agentreplay again in your terminal and pick the session.";
+const RUN_AGAIN = "Run npx crafter-replay again in your terminal and pick the session.";
 
 export const PROBLEM_TEXT: Readonly<Record<Problem, { title: string; hint: string }>> = {
   noSession: {
     title: "No session chosen.",
-    hint: "Start AgentReplay from your terminal with npx agentreplay, then pick a session.",
+    hint: "Start Crafter Replay from your terminal with npx crafter-replay, then pick a session.",
   },
   unreachable: {
-    title: "Can't reach AgentReplay.",
+    title: "Can't reach Crafter Replay.",
     hint: `The terminal running it was probably closed or stopped. ${RUN_AGAIN}`,
   },
   notFound: { title: "This session isn't available.", hint: RUN_AGAIN },
   unreadable: {
     title: "This session couldn't be read.",
-    hint: "The log may be damaged, or written by a Claude Code version AgentReplay doesn't know yet.",
+    hint: "The log may be damaged, or written by a Claude Code version Crafter Replay doesn't know yet.",
   },
   unexpected: {
     title: "Something unexpected came back.",

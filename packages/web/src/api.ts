@@ -1,4 +1,4 @@
-// Talks to the local AgentReplay server (ARCHITECTURE.md §8). Every failure becomes a named
+// Talks to the local Crafter Replay server (ARCHITECTURE.md §8). Every failure becomes a named
 // problem, so the UI can always show a sentence and a next step instead of a blank page.
 import type { SharedSession } from "@agentreplay/core";
 

@@ -1,5 +1,5 @@
 {
-  "name": "agentreplay",
+  "name": "crafter-replay",
   "version": "0.1.0",
   "description": "Replay a Claude Code session in your browser. Data never leaves your computer.",
   "license": "MIT",
@@ -25,7 +25,7 @@
     "node": ">=22"
   },
   "bin": {
-    "agentreplay": "./dist/index.js"
+    "crafter-replay": "./dist/index.js"
   },
   "files": [
     "dist"

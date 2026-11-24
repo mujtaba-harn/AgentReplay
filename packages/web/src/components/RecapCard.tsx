@@ -30,7 +30,7 @@ const LEGEND: readonly { kind: BarKind; label: string }[] = [
 
 /** A theme's own touch above the title; only Terminal has words there. */
 const KICKER: Readonly<Record<CardTheme, string>> = {
-  terminal: "$ agentreplay --recap",
+  terminal: "$ crafter-replay --recap",
   violet: "",
   clay: "",
 };
@@ -127,9 +127,9 @@ export function RecapCard({ session, options, ref }: RecapCardProps) {
       )}
       <div className="card-footer">
         <span className="card-wordmark">
-          agent<span>replay</span>
+          crafter-<span>replay</span>
         </span>
-        <span>Replayed locally · npx agentreplay</span>
+        <span>Replayed locally · npx crafter-replay</span>
       </div>
     </div>
   );

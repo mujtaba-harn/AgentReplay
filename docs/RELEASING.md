@@ -14,7 +14,7 @@ and workflow that built it.
    2. On GitHub: the repo → Settings → Secrets and variables → Actions → New repository secret.
       Name `NPM_TOKEN`, value: the token.
 3. After the first release, switch to **trusted publishing**, which needs no token at all:
-   1. On npm: the `agentreplay` package → Settings → Trusted Publisher → GitHub Actions.
+   1. On npm: the `crafter-replay` package → Settings → Trusted Publisher → GitHub Actions.
       Organization or user `mujtaba-harn`, repository `AgentReplay`, workflow file
       `release.yml`.
    2. Delete the `NPM_TOKEN` secret on GitHub and revoke the token on npm.
@@ -26,7 +26,7 @@ and workflow that built it.
    `git tag v0.1.1 && git push origin v0.1.1`.
 3. Watch the **Release** workflow on GitHub. It runs check, test, build and the packed-CLI smoke
    test, refuses a tag that doesn't match the package version, then publishes.
-4. Check from a fresh folder: `npx agentreplay@0.1.1 --version`.
+4. Check from a fresh folder: `npx crafter-replay@0.1.1 --version`.
 
 A version number can only be published once. If a release is broken, fix it and publish the next
 version; don't try to replace it.

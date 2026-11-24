@@ -129,8 +129,8 @@ async function exportCard(session: SessionSummary, options: CliOptions): Promise
 
 main(process.argv.slice(2)).catch((error: unknown) => {
   fail(
-    "Something went wrong and agentreplay stopped.",
-    "Run again with DEBUG=agentreplay to see the details, and report it if it keeps happening.",
+    "Something went wrong and crafter-replay stopped.",
+    "Run again with DEBUG=crafter-replay to see the details, and report it if it keeps happening.",
   );
-  if (process.env.DEBUG === "agentreplay") console.error(error);
+  if (process.env.DEBUG === "crafter-replay") console.error(error);
 });

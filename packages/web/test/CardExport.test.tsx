@@ -3,7 +3,7 @@ import type { ReplaySession } from "@agentreplay/core";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const downloadCard = vi.fn(async () => "agentreplay-card-2026-11-23.png");
+const downloadCard = vi.fn(async () => "crafter-replay-card-2026-11-23.png");
 const copyCard = vi.fn(async () => {});
 vi.mock("../src/export", () => ({ downloadCard, copyCard }));
 
@@ -44,7 +44,7 @@ describe("CardView buttons", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Download PNG" }));
 
-    expect(await screen.findByText("Saved agentreplay-card-2026-11-23.png")).toBeTruthy();
+    expect(await screen.findByText("Saved crafter-replay-card-2026-11-23.png")).toBeTruthy();
     expect(downloadCard).toHaveBeenCalledWith(document.querySelector(".recap-card"));
   });
 
@@ -73,7 +73,7 @@ describe("CardExport (--card)", () => {
   it("downloads the card by itself and tells the CLI it was saved", async () => {
     render(<CardExport session={session} />);
 
-    expect(await screen.findByText(/Saved agentreplay-card-2026-11-23.png/)).toBeTruthy();
+    expect(await screen.findByText(/Saved crafter-replay-card-2026-11-23.png/)).toBeTruthy();
     expect(downloadCard).toHaveBeenCalledOnce();
     await waitFor(() => expect(fetchMock).toHaveBeenCalledWith("/api/card-done?saved=1"));
   });

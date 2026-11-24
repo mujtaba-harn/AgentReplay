@@ -54,7 +54,7 @@ let webRoot: string;
 let sessionId: string;
 
 beforeAll(async () => {
-  const dir = mkdtempSync(join(tmpdir(), "agentreplay-server-"));
+  const dir = mkdtempSync(join(tmpdir(), "crafter-replay-server-"));
   webRoot = join(dir, "web");
   mkdirSync(join(webRoot, "assets"), { recursive: true });
   writeFileSync(join(webRoot, "index.html"), "<h1>replay ui</h1>");

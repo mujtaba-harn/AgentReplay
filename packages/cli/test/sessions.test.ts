@@ -17,7 +17,7 @@ function addSession(project: string, fixture: string): string {
 }
 
 beforeEach(() => {
-  configDir = mkdtempSync(join(tmpdir(), "agentreplay-sessions-"));
+  configDir = mkdtempSync(join(tmpdir(), "crafter-replay-sessions-"));
 });
 
 afterEach(() => {

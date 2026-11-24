@@ -16,9 +16,9 @@ export type ParsedArgs =
   | { ok: true; options: CliOptions }
   | { ok: false; message: string; hint: string };
 
-const HINT = "Run agentreplay --help to see all options.";
+const HINT = "Run crafter-replay --help to see all options.";
 
-export const HELP_TEXT = `Usage: agentreplay [options]
+export const HELP_TEXT = `Usage: crafter-replay [options]
 
 Replay a Claude Code session in your browser.
 

@@ -35,4 +35,4 @@ jobs:
       - run: pnpm build
       # Packs the CLI, installs the tarball into an empty folder and runs a real replay from it.
       - name: Smoke-test the packed CLI
-        run: pnpm --filter agentreplay smoke
+        run: pnpm --filter crafter-replay smoke

@@ -1,5 +1,5 @@
 // F1.12 check: pack the CLI, install the tarball into an empty folder (like `npx` on a fresh
-// machine), and run a real replay from it. Run with `pnpm --filter agentreplay smoke` after a build.
+// machine), and run a real replay from it. Run with `pnpm --filter crafter-replay smoke` after a build.
 import { type ChildProcess, spawn, spawnSync } from "node:child_process";
 import {
   existsSync,
@@ -66,7 +66,7 @@ async function expectReplayServed(entry: string): Promise<void> {
 }
 
 async function main(): Promise<void> {
-  const work = mkdtempSync(join(tmpdir(), "agentreplay-smoke-"));
+  const work = mkdtempSync(join(tmpdir(), "crafter-replay-smoke-"));
   try {
     run("pnpm", ["pack", "--pack-destination", work], CLI_DIR);
     const tarball = readdirSync(work).find((name) => name.endsWith(".tgz"));
@@ -76,7 +76,7 @@ async function main(): Promise<void> {
     writeFileSync(join(app, "package.json"), '{ "private": true }');
     run("npm", ["install", join(work, tarball), "--no-audit", "--no-fund"], app);
 
-    const installed = join(app, "node_modules", "agentreplay");
+    const installed = join(app, "node_modules", "crafter-replay");
     for (const doc of ["README.md", "LICENSE"]) {
       if (!existsSync(join(installed, doc))) throw new Error(`The package is missing ${doc}.`);
     }

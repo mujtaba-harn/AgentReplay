@@ -40,7 +40,7 @@ describe("parseCliArgs", () => {
     expect(result.ok).toBe(false);
     if (!result.ok) {
       expect(result.message).toBe(message);
-      expect(result.hint).toBe("Run agentreplay --help to see all options.");
+      expect(result.hint).toBe("Run crafter-replay --help to see all options.");
     }
   });
 });

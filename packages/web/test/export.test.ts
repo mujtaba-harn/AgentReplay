@@ -42,7 +42,7 @@ describe("renderCard", () => {
 
 describe("cardFileName", () => {
   it("names the file after the day, never the project or files", () => {
-    expect(cardFileName(new Date(2026, 10, 23))).toBe("agentreplay-card-2026-11-23.png");
+    expect(cardFileName(new Date(2026, 10, 23))).toBe("crafter-replay-card-2026-11-23.png");
   });
 });
 
@@ -55,7 +55,7 @@ describe("downloadCard", () => {
 
     const name = await downloadCard(document.createElement("div"), new Date(2026, 10, 23));
 
-    expect(name).toBe("agentreplay-card-2026-11-23.png");
+    expect(name).toBe("crafter-replay-card-2026-11-23.png");
     expect(click).toHaveBeenCalledOnce();
     expect(URL.revokeObjectURL).not.toHaveBeenCalled();
     vi.runAllTimers();

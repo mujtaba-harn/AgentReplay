@@ -48,7 +48,7 @@ export function App() {
   return (
     <main className="app">
       <ReplayScreen state={state} cardOnly={cardOnly} />
-      <footer className="app-footer">AgentReplay · Data never leaves your computer.</footer>
+      <footer className="app-footer">Crafter Replay · Data never leaves your computer.</footer>
     </main>
   );
 }

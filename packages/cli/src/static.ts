@@ -23,8 +23,8 @@ const FALLBACK_TYPE = "application/octet-stream";
 const HTML = CONTENT_TYPES[".html"] ?? FALLBACK_TYPE;
 
 /** Shown when the server runs before `pnpm build` has produced the UI. */
-const NOT_BUILT_PAGE = `<!doctype html><meta charset="utf-8"><title>AgentReplay</title>
-<p>The AgentReplay web UI has not been built yet. Run <code>pnpm build</code> and start again.</p>`;
+const NOT_BUILT_PAGE = `<!doctype html><meta charset="utf-8"><title>Crafter Replay</title>
+<p>The Crafter Replay web UI has not been built yet. Run <code>pnpm build</code> and start again.</p>`;
 
 /** The file a URL path points to, or undefined if it would land outside `root`. */
 export function fileInside(root: string, urlPath: string): string | undefined {

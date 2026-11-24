@@ -1,4 +1,4 @@
-// `npx agentreplay --card` opens this page: it draws the card, downloads it and tells the CLI.
+// `npx crafter-replay --card` opens this page: it draws the card, downloads it and tells the CLI.
 import type { SharedSession } from "@agentreplay/core";
 import { useEffect, useRef, useState } from "react";
 import { reportCardDone } from "../api";
@@ -42,7 +42,7 @@ export function CardExport({ session }: { session: SharedSession }) {
         <Notice
           tone="problem"
           title="Your card couldn't be saved."
-          hint={`${outcome.reason} Run npx agentreplay and use Download PNG instead.`}
+          hint={`${outcome.reason} Run npx crafter-replay and use Download PNG instead.`}
         />
       )}
       <div className="card-frame">

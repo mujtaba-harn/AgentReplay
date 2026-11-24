@@ -51,7 +51,7 @@ describe("RecapCard", () => {
     for (const expected of ["Built an expense tracker", "Claude Code", "29m", "4 steps"]) {
       expect(text).toContain(expected);
     }
-    for (const expected of ["12", "+4,860", "−744", "215", "$8.97", "agentreplay"]) {
+    for (const expected of ["12", "+4,860", "−744", "215", "$8.97", "crafter-replay"]) {
       expect(text).toContain(expected);
     }
   });
