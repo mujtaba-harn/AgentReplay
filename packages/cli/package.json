@@ -1,6 +1,6 @@
 {
   "name": "crafter-replay",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Replay a Claude Code session in your browser. Data never leaves your computer.",
   "license": "MIT",
   "repository": {
