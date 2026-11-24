@@ -175,9 +175,9 @@ describe("startServer", () => {
 });
 
 describe("a --card server", () => {
-  const ask = (port: number, path: string) =>
+  const ask = (port: number, path: string, headers: Record<string, string> = {}) =>
     new Promise<number>((resolve, reject) => {
-      request({ port, host: "127.0.0.1", path }, (r) => {
+      request({ port, host: "127.0.0.1", path, headers }, (r) => {
         r.resume();
         resolve(r.statusCode ?? 0);
       })
@@ -195,6 +195,23 @@ describe("a --card server", () => {
     try {
       expect(await ask(card.port, path)).toBe(200);
       expect(reports).toEqual([saved]);
+    } finally {
+      await card.close();
+    }
+  });
+
+  // F1.25 review: another website must not be able to end --card with a false "saved".
+  it.each([
+    ["cross-site", 403, []],
+    ["same-site", 403, []],
+    ["same-origin", 200, [true]],
+  ])("answers a %s request with %s", async (site, status, expected) => {
+    const reports: boolean[] = [];
+    const card = await startServer({ sessions: [], webRoot, onCardDone: (s) => reports.push(s) });
+    try {
+      const headers = { "sec-fetch-site": site };
+      expect(await ask(card.port, "/api/card-done?saved=1", headers)).toBe(status);
+      expect(reports).toEqual(expected);
     } finally {
       await card.close();
     }

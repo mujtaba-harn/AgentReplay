@@ -99,11 +99,22 @@ function routes(options: ServerOptions): Route {
   };
 }
 
+/**
+ * Browsers say where a request came from. Another website can't read our answers, but it could
+ * still trigger /api/card-done, so the API only serves our own page (and tools that send no header).
+ */
+function fromOtherSite(req: IncomingMessage): boolean {
+  const site = req.headers["sec-fetch-site"];
+  return site !== undefined && site !== "same-origin" && site !== "none";
+}
+
 async function reply(req: IncomingMessage, route: Route, port: number): Promise<Reply> {
   if (!isAllowedHost(req.headers.host, port)) return text(403, "Forbidden host.");
   if (req.method !== "GET" && req.method !== "HEAD") return text(405, "Only GET is allowed.");
+  const url = new URL(req.url ?? "/", `http://${LOOPBACK}`);
+  if (url.pathname.startsWith("/api/") && fromOtherSite(req)) return text(403, "Forbidden.");
   try {
-    return await route(new URL(req.url ?? "/", `http://${LOOPBACK}`));
+    return await route(url);
   } catch {
     // Deliberately no details: an error message could quote log text.
     return json(500, { error: "This session could not be read." });
